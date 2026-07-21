@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>jibuen — 个人主页</title>
+<style>
+/* ===== 重置 & 变量 ===== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#fff;--text:#1a1a2e;--text-light:#555;--muted:#888;
+  --accent:#4A90D9;--accent-light:#e8f0fa;--accent-dark:#357ABD;
+  --border:#e0e0e0;--card-bg:#fafafa;--radius:10px;
+  --max-width:1000px;--nav-height:60px;
+}
+html{scroll-behavior:smooth;scroll-padding-top:var(--nav-height)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;color:var(--text);background:var(--bg);line-height:1.7}
+
+/* ===== 导航栏 ===== */
+.navbar{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:var(--nav-height);background:rgba(255,255,255,.95);
+  backdrop-filter:blur(8px);transition:box-shadow .3s;
+}
+.navbar.scrolled{box-shadow:0 2px 20px rgba(0,0,0,.08)}
+.nav-inner{
+  max-width:var(--max-width);margin:0 auto;padding:0 24px;
+  height:100%;display:flex;align-items:center;justify-content:space-between
+}
+.logo{font-size:22px;font-weight:700;letter-spacing:-.5px}
+.logo span{color:var(--accent)}
+.nav-links{display:flex;gap:4px;list-style:none}
+.nav-links a{
+  text-decoration:none;color:var(--text-light);font-size:14px;
+  padding:8px 14px;border-radius:6px;transition:all .2s
+}
+.nav-links a:hover,.nav-links a.active{color:var(--accent);background:var(--accent-light)}
+.menu-btn{display:none;background:none;border:none;font-size:24px;cursor:pointer;color:var(--text)}
+
+/* ===== 通用 ===== */
+section{padding:80px 24px}
+.section-inner{max-width:var(--max-width);margin:0 auto}
+.section-title{font-size:28px;font-weight:700;margin-bottom:40px;text-align:center}
+.section-title::after{content:'';display:block;width:50px;height:3px;background:var(--accent);margin:12px auto 0;border-radius:2px}
+
+/* ===== 英雄区 ===== */
+.hero{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;
+  text-align:center;padding:100px 24px;
+  background:linear-gradient(135deg,#f5f7fa 0%,#e4e9f0 100%)
+}
+.hero-avatar{
+  width:120px;height:120px;border-radius:50%;margin:0 auto 24px;
+  background:linear-gradient(135deg,var(--accent),#6c5ce7);
+  display:flex;align-items:center;justify-content:center;
+  font-size:44px;color:#fff;font-weight:700;box-shadow:0 8px 30px rgba(74,144,217,.3)
+}
+.hero h1{font-size:42px;font-weight:800;margin-bottom:8px}
+.hero .tagline{font-size:18px;color:var(--text-light);margin-bottom:28px}
+.hero .btn{
+  display:inline-block;padding:12px 32px;background:var(--accent);color:#fff;
+  border-radius:50px;text-decoration:none;font-size:15px;font-weight:500;
+  transition:all .2s
+}
+.hero .btn:hover{background:var(--accent-dark);transform:translateY(-2px);box-shadow:0 6px 20px rgba(74,144,217,.4)}
+
+/* ===== 关于我 ===== */
+.about-grid{
+  display:grid;grid-template-columns:280px 1fr;gap:48px;align-items:center
+}
+.about-photo{
+  width:100%;aspect-ratio:1;border-radius:var(--radius);
+  background:linear-gradient(135deg,#e8e8e8,#d5d5d5);
+  display:flex;align-items:center;justify-content:center;
+  font-size:60px;color:#aaa
+}
+.about-text p{margin-bottom:16px;color:var(--text-light);font-size:15px}
+
+/* ===== 技能 ===== */
+.skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.skill-card{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:var(--radius);padding:28px 20px;text-align:center;transition:all .2s
+}
+.skill-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
+.skill-icon{font-size:36px;margin-bottom:12px}
+.skill-name{font-weight:600;margin-bottom:8px;font-size:15px}
+.skill-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:10px}
+.skill-fill{height:100%;background:var(--accent);border-radius:3px;transition:width 1s ease}
+
+/* ===== 项目 ===== */
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+.project-card{
+  background:var(--card-bg);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;transition:all .2s
+}
+.project-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.project-img{
+  height:180px;background:linear-gradient(135deg,#e0e7ff,#c7d2fe);
+  display:flex;align-items:center;justify-content:center;
+  font-size:40px;color:#8884d8
+}
+.project-body{padding:20px}
+.project-body h3{font-size:17px;margin-bottom:8px}
+.project-body p{font-size:13px;color:var(--text-light);margin-bottom:14px}
+.project-body .btn-sm{
+  display:inline-block;padding:6px 16px;border:1px solid var(--accent);
+  color:var(--accent);border-radius:6px;text-decoration:none;font-size:13px;transition:all .2s
+}
+.project-body .btn-sm:hover{background:var(--accent);color:#fff}
+
+/* ===== 联系方式 ===== */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+.contact-info .info-item{display:flex;align-items:center;gap:12px;margin-bottom:20px;font-size:15px}
+.contact-info .info-icon{font-size:20px;width:44px;height:44px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.social-links{display:flex;gap:12px;margin-top:24px}
+.social-link{
+  width:40px;height:40px;border-radius:50%;background:var(--accent-light);
+  display:flex;align-items:center;justify-content:center;
+  text-decoration:none;font-size:18px;transition:all .2s
+}
+.social-link:hover{background:var(--accent);color:#fff}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--text-light)}
+.form-group input,.form-group textarea{
+  width:100%;padding:10px 14px;border:1px solid var(--border);
+  border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s
+}
+.form-group input:focus,.form-group textarea:focus{border-color:var(--accent)}
+.form-group textarea{resize:vertical;min-height:100px}
+.form-submit{
+  padding:10px 28px;background:var(--accent);color:#fff;border:none;
+  border-radius:8px;font-size:14px;cursor:pointer;transition:all .2s
+}
+.form-submit:hover{background:var(--accent-dark)}
+
+/* ===== 页脚 ===== */
+.footer{
+  text-align:center;padding:30px 24px;color:var(--muted);font-size:13px;
+  border-top:1px solid var(--border)
+}
+.back-to-top{
+  position:fixed;bottom:24px;right:24px;z-index:50;
+  width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;
+  border:none;cursor:pointer;font-size:18px;box-shadow:0 4px 12px rgba(0,0,0,.15);
+  opacity:0;visibility:hidden;transition:all .3s;display:flex;align-items:center;justify-content:center
+}
+.back-to-top.show{opacity:1;visibility:visible}
+.back-to-top:hover{background:var(--accent-dark);transform:translateY(-2px)}
+
+/* ===== 动画 ===== */
+.fade-in{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+
+/* ===== 响应式 ===== */
+@media(max-width:768px){
+  .nav-links{display:none;position:absolute;top:var(--nav-height);left:0;right:0;background:#fff;flex-direction:column;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+  .nav-links.open{display:flex}
+  .menu-btn{display:block}
+  .hero h1{font-size:32px}
+  .about-grid{grid-template-columns:1fr}
+  .about-photo{max-width:200px;margin:0 auto}
+  .contact-grid{grid-template-columns:1fr}
+  section{padding:60px 20px}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 导航栏 ===== -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a href="#hero" class="logo"><span>jibuen</span></a>
+    <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+    <ul class="nav-links" id="navLinks">
+      <li><a href="#about" class="nav-link">关于我</a></li>
+      <li><a href="#skills" class="nav-link">技能</a></li>
+      <li><a href="#projects" class="nav-link">项目</a></li>
+      <li><a href="#contact" class="nav-link">联系方式</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ===== 英雄区 ===== -->
+<section class="hero" id="hero">
+  <div>
+    <div class="hero-avatar">J</div>
+    <h1>你好，我是 jibuen</h1>
+    <p class="tagline">全栈开发者 · 开源爱好者 · 终身学习者</p>
+    <a href="#about" class="btn">了解更多 ↓</a>
+  </div>
+</section>
+
+<!-- ===== 关于我 ===== -->
+<section id="about">
+  <div class="section-inner">
+    <h2 class="section-title fade-in">关于我</h2>
+    <div class="about-grid fade-in">
+      <div class="about-photo">📷</div>
+      <div class="about-text">
+        <p>我是一名热爱技术的全栈开发者，专注于构建优雅、高效的 Web 应用。从后端 API 到前端交互，从数据库设计到部署运维，我享受每个环节带来的挑战与成就感。</p>
+        <p>工作之余，我热衷于参与开源项目，在 GitHub 上分享自己的代码和想法。我相信技术的力量在于连接人与信息，而优秀的代码可以让这个世界变得更美好。</p>
+        <p>目前我正在探索云原生、AI 应用和现代前端框架的更多可能性。欢迎与我交流，一起学习成长。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 技能 ===== -->
+<section id="skills" style="background:#f8f9fb">
+  <div class="section-inner">
+    <h2 class="section-title fade-in">核心技能</h2>
+    <div class="skills-grid fade-in">
+      <div class="skill-card">
+        <div class="skill-icon">🎨</div>
+        <div class="skill-name">前端开发</div>
+        <div class="skill-bar"><div class="skill-fill" style="width:0" data-width="90%"></div></div>
+        <small style="color:var(--muted)">HTML / CSS / JavaScript / React</small>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">⚙️</div>
+        <div class="skill-name">后端开发</div>
+        <div class="skill-bar"><div class="skill-fill" style="width:0" data-width="85%"></div></div>
+        <small style="color:var(--muted)">Node.js / Express / Python</small>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">🗄️</div>
+        <div class="skill-name">数据库</div>
+        <div class="skill-bar"><div class="skill-fill" style="width:0" data-width="80%"></div></div>
+        <small style="color:var(--muted)">MySQL / SQLite / MongoDB</small>
+      </div>
+      <div class="skill-card">
+        <div class="skill-icon">🛠️</div>
+        <div class="skill-name">开发工具</div>
+        <div class="skill-bar"><div class="skill-fill" style="width:0" data-width="88%"></div></div>
+        <small style="color:var(--muted)">Git / Docker / VS Code / Linux</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 项目 ===== -->
+<section id="projects">
+  <div class="section-inner">
+    <h2 class="section-title fade-in">项目作品</h2>
+    <div class="projects-grid fade-in">
+      <div class="project-card">
+        <div class="project-img">📊</div>
+        <div class="project-body">
+          <h3>数据分析仪表盘</h3>
+          <p>基于 React 和 ECharts 构建的交互式数据可视化平台，支持实时数据监控和自定义报表导出。</p>
+          <a href="#" class="btn-sm">查看详情 →</a>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-img">💬</div>
+        <div class="project-body">
+          <h3>实时聊天应用</h3>
+          <p>使用 WebSocket 技术实现的多人实时聊天系统，支持房间管理、消息持久化和在线状态显示。</p>
+          <a href="#" class="btn-sm">查看详情 →</a>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-img">🗂️</div>
+        <div class="project-body">
+          <h3>智能任务管理器</h3>
+          <p>全栈任务管理工具，支持标签分类、优先级排序、截止日期提醒和团队协作功能。</p>
+          <a href="#" class="btn-sm">查看详情 →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 联系方式 ===== -->
+<section id="contact" style="background:#f8f9fb">
+  <div class="section-inner">
+    <h2 class="section-title fade-in">联系方式</h2>
+    <div class="contact-grid fade-in">
+      <div class="contact-info">
+        <div class="info-item">
+          <div class="info-icon">📧</div>
+          <div><strong>邮箱</strong><br><span style="color:var(--text-light)">jibuen@example.com</span></div>
+        </div>
+        <div class="info-item">
+          <div class="info-icon">📍</div>
+          <div><strong>位置</strong><br><span style="color:var(--text-light)">中国 · 在线</span></div>
+        </div>
+        <div class="social-links">
+          <a href="https://github.com/qq212qq" class="social-link" title="GitHub" target="_blank" rel="noopener">🐙</a>
+          <a href="#" class="social-link" title="Twitter">🐦</a>
+          <a href="#" class="social-link" title="LinkedIn">💼</a>
+          <a href="#" class="social-link" title="WeChat">💬</a>
+        </div>
+      </div>
+      <form id="contactForm" onsubmit="return handleSubmit(event)">
+        <div class="form-group">
+          <label>姓名</label>
+          <input type="text" id="cName" placeholder="你的名字" required>
+        </div>
+        <div class="form-group">
+          <label>邮箱</label>
+          <input type="email" id="cEmail" placeholder="your@email.com" required>
+        </div>
+        <div class="form-group">
+          <label>留言</label>
+          <textarea id="cMessage" placeholder="说点什么..." required></textarea>
+        </div>
+        <button type="submit" class="form-submit">发送留言</button>
+        <p id="formMsg" style="margin-top:12px;font-size:13px;"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 页脚 ===== -->
+<footer class="footer">
+  <p>© 2026 jibuen · Built with ❤️</p>
+</footer>
+
+<!-- ===== 返回顶部 ===== -->
+<button class="back-to-top" id="backTop" title="返回顶部" aria-label="返回顶部">↑</button>
+
+<script>
+// ===== 导航栏滚动阴影 =====
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll',()=>{
+  navbar.classList.toggle('scrolled',window.scrollY>50);
+});
+
+// ===== 返回顶部按钮 =====
+const backTop = document.getElementById('backTop');
+window.addEventListener('scroll',()=>{
+  backTop.classList.toggle('show',window.scrollY>400);
+});
+backTop.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+// ===== 滚动高亮导航 =====
+const sections = document.querySelectorAll('section[id]');
+const navLinks = document.querySelectorAll('.nav-link');
+window.addEventListener('scroll',()=>{
+  let current='';
+  sections.forEach(s=>{
+    if(window.scrollY>=s.offsetTop-100) current=s.getAttribute('id');
+  });
+  navLinks.forEach(a=>{
+    a.classList.toggle('active',a.getAttribute('href')==='#'+current);
+  });
+});
+
+// ===== 移动端菜单 =====
+const menuBtn = document.getElementById('menuBtn');
+const navLinksEl = document.getElementById('navLinks');
+menuBtn.addEventListener('click',()=>navLinksEl.classList.toggle('open'));
+navLinksEl.querySelectorAll('a').forEach(a=>{
+  a.addEventListener('click',()=>navLinksEl.classList.remove('open'));
+});
+
+// ===== 滚动渐入动画 =====
+const observer = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      // 技能条动画
+      e.target.querySelectorAll('.skill-fill').forEach(bar=>{
+        bar.style.width=bar.dataset.width;
+      });
+    }
+  });
+},{threshold:.15});
+
+document.querySelectorAll('.fade-in').forEach(el=>observer.observe(el));
+
+// ===== 联系表单 =====
+function handleSubmit(e){
+  e.preventDefault();
+  const name=document.getElementById('cName').value.trim();
+  const email=document.getElementById('cEmail').value.trim();
+  const message=document.getElementById('cMessage').value.trim();
+  const msgEl=document.getElementById('formMsg');
+
+  if(!name||!email||!message){
+    msgEl.style.color='#e74c3c';
+    msgEl.textContent='请填写所有字段';
+    return false;
+  }
+  msgEl.style.color='#27ae60';
+  msgEl.textContent='✅ 留言已发送，感谢联系！';
+  e.target.reset();
+  return false;
+}
+</script>
+</body>
+</html>
