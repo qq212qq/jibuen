@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>代码基础用法笔记 · 交互式知识库</title>
+<!-- 图标库 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<!-- 代码高亮 -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+/* ========== CSS 变量 & 主题 ========== */
+:root {
+  --bg: linear-gradient(135deg, #e8ecf1 0%, #dce3ed 50%, #eef1f5 100%);
+  --bg-rgb: 232,236,241;
+  --surface: rgba(255,255,255,0.55);
+  --surface-hover: rgba(255,255,255,0.75);
+  --border: rgba(255,255,255,0.5);
+  --text: #1a1a2e;
+  --text-secondary: #555;
+  --text-muted: #999;
+  --accent: #5b6e8c;
+  --accent-light: rgba(91,110,140,0.12);
+  --code-bg: #1e1e2e;
+  --card-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  --card-shadow-hover: 0 12px 36px rgba(0,0,0,0.10);
+  --sidebar-bg: rgba(255,255,255,0.45);
+  --stat-bg: rgba(255,255,255,0.5);
+  --overlay: rgba(0,0,0,0.3);
+  --star-color: #f0a500;
+  --tag-bg: rgba(91,110,140,0.1);
+  --tag-text: #5b6e8c;
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+[data-theme="dark"] {
+  --bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #1a1a2e 100%);
+  --bg-rgb: 26,26,46;
+  --surface: rgba(30,30,50,0.65);
+  --surface-hover: rgba(40,40,65,0.8);
+  --border: rgba(255,255,255,0.08);
+  --text: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-muted: #777;
+  --accent: #8ab4f8;
+  --accent-light: rgba(138,180,248,0.15);
+  --card-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  --card-shadow-hover: 0 12px 40px rgba(0,0,0,0.4);
+  --sidebar-bg: rgba(25,25,45,0.7);
+  --stat-bg: rgba(30,30,50,0.6);
+  --overlay: rgba(0,0,0,0.6);
+  --tag-bg: rgba(138,180,248,0.12);
+  --tag-text: #8ab4f8;
+}
+
+/* ========== 重置 ========== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:100px}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC','Microsoft YaHei',sans-serif;
+  background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;
+  transition:background var(--transition),color var(--transition);
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ========== 顶部导航栏 ========== */
+.top-nav{
+  position:sticky;top:0;z-index:200;
+  background:var(--surface);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--border);padding:0 20px;
+  transition:all var(--transition);box-shadow:0 1px 12px rgba(0,0,0,0.04);
+}
+.nav-inner{
+  max-width:1400px;margin:0 auto;height:64px;
+  display:flex;align-items:center;gap:16px;
+}
+.nav-brand{font-size:20px;font-weight:700;white-space:nowrap;text-decoration:none;color:var(--text);}
+.nav-brand span{color:var(--accent);}
+.search-wrap{
+  flex:1;max-width:420px;position:relative;
+}
+.search-wrap input{
+  width:100%;padding:9px 14px 9px 38px;border-radius:24px;
+  border:1px solid var(--border);background:var(--surface);
+  font-size:13px;color:var(--text);outline:none;font-family:inherit;
+  transition:all var(--transition);
+}
+.search-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light);}
+.search-wrap .search-icon{
+  position:absolute;left:14px;top:50%;transform:translateY(-50%);
+  color:var(--text-muted);font-size:14px;pointer-events:none;
+}
+.nav-actions{display:flex;align-items:center;gap:10px;}
+
+.filter-btn{
+  padding:7px 16px;border-radius:20px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-secondary);font-size:12px;
+  cursor:pointer;font-family:inherit;transition:all var(--transition);white-space:nowrap;
+}
+.filter-btn:hover{border-color:var(--accent);color:var(--accent);}
+.filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+.theme-toggle{
+  width:38px;height:38px;border-radius:50%;border:1px solid var(--border);
+  background:var(--surface);color:var(--text);cursor:pointer;
+  font-size:16px;display:flex;align-items:center;justify-content:center;
+  transition:all var(--transition);
+}
+.theme-toggle:hover{transform:rotate(20deg);}
+
+.home-btn{
+  display:flex;align-items:center;gap:5px;
+  padding:7px 14px;border-radius:20px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-secondary);font-size:12px;
+  cursor:pointer;font-family:inherit;transition:all var(--transition);
+  text-decoration:none;white-space:nowrap;
+}
+.home-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-light);}
+
+.hamburger{
+  display:none;width:38px;height:38px;border-radius:50%;border:1px solid var(--border);
+  background:var(--surface);color:var(--text);cursor:pointer;font-size:18px;
+  align-items:center;justify-content:center;
+}
+
+/* ========== 统计看板 ========== */
+.stats-bar{
+  max-width:1400px;margin:20px auto 0;padding:0 20px;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+}
+.stat-card{
+  background:var(--stat-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid var(--border);border-radius:14px;padding:16px 20px;
+  text-align:center;transition:all var(--transition);
+}
+.stat-num{font-size:32px;font-weight:700;color:var(--accent);}
+.stat-label{font-size:12px;color:var(--text-muted);margin-top:2px;}
+
+/* ========== 布局 ========== */
+.main-layout{
+  max-width:1400px;margin:20px auto 0;padding:0 20px;
+  display:flex;gap:20px;align-items:flex-start;
+}
+/* 侧边栏 */
+.sidebar{
+  width:220px;flex-shrink:0;
+  background:var(--sidebar-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid var(--border);border-radius:14px;padding:18px;
+  position:sticky;top:88px;max-height:calc(100vh - 120px);
+  overflow-y:auto;z-index:10;transition:all var(--transition);
+}
+.sidebar h4{font-size:13px;color:var(--text-muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px;}
+.sidebar .toc-link,.sidebar .recent-link{
+  display:block;padding:7px 10px;border-radius:8px;font-size:13px;
+  color:var(--text-secondary);text-decoration:none;cursor:pointer;
+  transition:all 0.15s;margin-bottom:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.sidebar .toc-link:hover,.sidebar .recent-link:hover{background:var(--accent-light);color:var(--accent);}
+.sidebar .recent-link{font-size:12px;color:var(--text-muted);}
+.sidebar .divider{
+  height:1px;background:var(--border);margin:16px 0;
+}
+
+/* 卡片区域 */
+.content-area{flex:1;min-width:0;padding-bottom:40px;}
+
+/* ========== 卡片网格 ========== */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:18px;}
+
+/* ========== 卡片样式 ========== */
+.card{
+  background:var(--surface);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  border:1px solid var(--border);border-radius:16px;overflow:hidden;
+  box-shadow:var(--card-shadow);transition:all var(--transition);
+  position:relative;
+}
+.card:hover{transform:translateY(-4px);box-shadow:var(--card-shadow-hover);}
+.card.favorited{border-color:var(--star-color);}
+
+.card-header{
+  padding:18px 20px 0;display:flex;align-items:flex-start;justify-content:space-between;
+}
+.card-title-area{flex:1;min-width:0;}
+.card-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px;}
+.card-desc{font-size:13px;color:var(--text-secondary);line-height:1.5;}
+.card-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.tag{
+  display:inline-block;padding:2px 10px;border-radius:12px;
+  background:var(--tag-bg);color:var(--tag-text);font-size:11px;font-weight:500;
+}
+.star-btn{
+  flex-shrink:0;width:34px;height:34px;border-radius:50%;border:none;
+  background:transparent;color:var(--text-muted);cursor:pointer;font-size:18px;
+  transition:all 0.2s;display:flex;align-items:center;justify-content:center;
+  margin-left:8px;
+}
+.star-btn:hover{color:var(--star-color);transform:scale(1.15);}
+.star-btn.active{color:var(--star-color);}
+
+/* 代码块区域 */
+.card-code{padding:0 16px 14px;}
+.code-tabs{display:flex;gap:4px;margin:12px 0 8px;}
+.code-tab{
+  padding:4px 14px;border-radius:6px 6px 0 0;font-size:11px;font-weight:500;
+  background:var(--accent-light);color:var(--text-muted);border:none;cursor:pointer;
+  font-family:inherit;transition:all 0.15s;
+}
+.code-tab.active{background:var(--code-bg);color:#c9d1d9;}
+.code-pane{display:none;position:relative;}
+.code-pane.active{display:block;}
+.code-pane pre{
+  margin:0;border-radius:0 8px 8px 8px;font-size:13px;line-height:1.6;
+  background:var(--code-bg) !important;padding:14px 40px 14px 16px !important;
+}
+
+/* 复制按钮 */
+.copy-btn{
+  position:absolute;top:8px;right:8px;z-index:5;
+  width:30px;height:30px;border-radius:6px;border:none;
+  background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);
+  cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;
+}
+.copy-btn:hover{background:rgba(255,255,255,0.18);color:#fff;}
+.copy-btn.copied{color:#4ade80;background:rgba(74,222,128,0.15);}
+
+/* 卡片底部 */
+.card-footer{padding:4px 20px 16px;display:flex;align-items:center;justify-content:space-between;}
+.expand-btn{
+  padding:5px 14px;border-radius:8px;border:1px solid var(--border);
+  background:var(--surface);color:var(--text-secondary);font-size:12px;
+  cursor:pointer;font-family:inherit;transition:all 0.2s;
+}
+.expand-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* 展开详情 */
+.card-detail{
+  display:none;padding:0 20px 16px;border-top:1px solid var(--border);margin:0 16px;
+  font-size:13px;color:var(--text-secondary);line-height:1.7;
+}
+.card-detail.open{display:block;padding-top:14px;}
+.card-detail p{margin-bottom:8px;}
+.card-detail code{
+  background:var(--accent-light);padding:1px 6px;border-radius:4px;
+  font-size:12px;color:var(--accent);
+}
+
+/* ========== Toast 提示 ========== */
+.toast{
+  position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:9999;
+  background:var(--code-bg);color:#fff;padding:10px 24px;border-radius:24px;
+  font-size:13px;pointer-events:none;opacity:0;transition:opacity 0.3s;
+  box-shadow:0 8px 28px rgba(0,0,0,0.25);
+}
+.toast.show{opacity:1;}
+
+/* ========== 空状态 ========== */
+.no-results{
+  text-align:center;padding:60px 20px;color:var(--text-muted);
+  grid-column:1/-1;
+}
+.no-results i{font-size:48px;display:block;margin-bottom:14px;}
+
+/* ========== 响应式 ========== */
+@media(max-width:1024px){
+  .card-grid{grid-template-columns:repeat(auto-fill,minmax(300px,1fr));}
+}
+@media(max-width:768px){
+  .sidebar{
+    position:fixed;left:-280px;top:0;bottom:0;z-index:300;
+    width:260px;border-radius:0;transition:left 0.3s;max-height:none;
+  }
+  .sidebar.open{left:0;}
+  .sidebar-overlay{
+    display:none;position:fixed;inset:0;z-index:299;
+    background:var(--overlay);
+  }
+  .sidebar-overlay.show{display:block;}
+  .hamburger{display:flex;}
+  .stats-bar{grid-template-columns:repeat(3,1fr);gap:10px;}
+  .stat-num{font-size:24px;}
+  .card-grid{grid-template-columns:1fr;}
+  .nav-inner{gap:10px;height:56px;}
+  .nav-brand{font-size:16px;}
+  .search-wrap{max-width:200px;}
+  .filter-btn{padding:6px 10px;font-size:11px;}
+}
+</style>
+</head>
+<body data-theme="light">
+
+<!-- ========== 顶部导航 ========== -->
+<nav class="top-nav">
+  <div class="nav-inner">
+    <button class="hamburger" id="hamburger" aria-label="菜单"><i class="fa-solid fa-bars"></i></button>
+    <a href="index.html" class="nav-brand"><span>jibuen</span> · 代码笔记</a>
+    <div class="search-wrap">
+      <i class="fa-solid fa-magnifying-glass search-icon"></i>
+      <input type="text" id="searchInput" placeholder="搜索笔记标题、说明或标签...">
+    </div>
+    <div class="nav-actions">
+      <a href="index.html" class="home-btn">🏠 返回主页</a>
+      <button class="filter-btn active" data-lang="all">全部</button>
+      <button class="filter-btn" data-lang="python">🐍 Python</button>
+      <button class="filter-btn" data-lang="javascript">🟨 JS</button>
+      <button class="filter-btn" data-lang="cpp" onclick="window.location.href='cxx-notes.html'">🔷 C++</button>
+      <button class="theme-toggle" id="themeToggle" title="切换主题"><i class="fa-solid fa-moon"></i></button>
+    </div>
+  </div>
+</nav>
+
+<!-- ========== 统计看板 ========== -->
+<div class="stats-bar">
+  <div class="stat-card"><div class="stat-num" id="statTotal">0</div><div class="stat-label">📚 总笔记数</div></div>
+  <div class="stat-card"><div class="stat-num" id="statFav">0</div><div class="stat-label">⭐ 已收藏</div></div>
+  <div class="stat-card"><div class="stat-num" id="statLang">0</div><div class="stat-label">🌐 涉及语言种类</div></div>
+</div>
+
+<!-- ========== 主布局 ========== -->
+<div class="main-layout">
+  <!-- 侧边栏覆盖层（移动端） -->
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- 侧边栏 -->
+  <aside class="sidebar" id="sidebar">
+    <h4>📋 快速目录</h4>
+    <div id="tocList"></div>
+    <div class="divider"></div>
+    <h4>🕐 最近浏览</h4>
+    <div id="recentList"></div>
+  </aside>
+
+  <!-- 卡片内容区 -->
+  <main class="content-area">
+    <div class="card-grid" id="cardGrid"></div>
+  </main>
+</div>
+
+<!-- ========== Toast ========== -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== 数据 ====================
+const cardsData = [
+  {
+    id: 1,
+    title: '变量定义',
+    desc: '变量是存储数据的容器，不同语言有不同的声明方式。',
+    tags: ['#基础', '#变量'],
+    python: '# Python — 变量定义\nname = "小明"\nage = 20\nPI = 3.14159  # 约定：全大写表示常量\n\n# Python 是动态类型，无需声明类型\nis_student = True',
+    js: '// JavaScript — 变量定义\nlet name = "小明";    // 可变变量\nconst age = 20;      // 常量，不可重新赋值\nvar PI = 3.14159;    // 旧式声明（不推荐）\n\n// JS 也是动态类型\nlet isStudent = true;',
+    detail: '<p><code>let</code> 声明的变量可以重新赋值，<code>const</code> 声明的常量不可修改。</p><p>在 Python 中，虽然没有语法层面的常量，但社区约定使用全大写命名表示不应修改的值。</p><p>两种语言都是<strong>动态类型</strong>，变量在运行时才确定类型。</p>'
+  },
+  {
+    id: 2,
+    title: '标准输入',
+    desc: '从用户获取数据是程序交互的基础。',
+    tags: ['#基础', '#输入输出'],
+    python: '# Python — input()\nname = input("请输入你的名字：")\nage = int(input("请输入年龄："))  # 转整数\n\n# input() 始终返回字符串\nscore = float(input("成绩："))',
+    js: '// JavaScript — prompt()\nlet name = prompt("请输入你的名字：");\nlet age = parseInt(prompt("请输入年龄："));\n\n// prompt() 返回字符串或 null\nlet score = parseFloat(prompt("成绩："));',
+    detail: '<p><code>input()</code> 和 <code>prompt()</code> 都返回字符串类型，需要进行类型转换后才能做数学运算。</p><p>Python 使用 <code>int()</code>、<code>float()</code> 转换；JS 使用 <code>parseInt()</code>、<code>parseFloat()</code>。</p>'
+  },
+  {
+    id: 3,
+    title: '格式化输出',
+    desc: '将数据以易读的格式输出到屏幕或控制台。',
+    tags: ['#基础', '#输入输出'],
+    python: '# Python — print() 与 f-string\nname = "小明"\nscore = 95.5\n\n# f-string（推荐）\nprint(f"{name} 的成绩是 {score:.1f}")\n\n# format 方法\nprint("{} 的成绩是 {:.1f}".format(name, score))',
+    js: '// JavaScript — console.log()\nlet name = "小明";\nlet score = 95.5;\n\n// 模板字符串（推荐）\nconsole.log(`${name} 的成绩是 ${score.toFixed(1)}`);\n\n// 拼接方式\nconsole.log(name + " 的成绩是 " + score.toFixed(1));',
+    detail: '<p>Python 的 <code>f-string</code>（f"..."）和 JS 的<strong>模板字符串</strong>（`...`）最为推荐，语法简洁，支持表达式嵌入。</p><p><code>{:.1f}</code> 表示保留 1 位小数，对应的 JS 写法是 <code>.toFixed(1)</code>。</p>'
+  },
+  {
+    id: 4,
+    title: '条件判断 if-else',
+    desc: '根据条件决定程序的执行路径。',
+    tags: ['#基础', '#控制流'],
+    python: '# Python — if / elif / else\nscore = 85\n\nif score >= 90:\n    grade = "A"\nelif score >= 80:\n    grade = "B"\nelif score >= 70:\n    grade = "C"\nelse:\n    grade = "D"\n\nprint(f"等级：{grade}")',
+    js: '// JavaScript — if / else if / else\nlet score = 85;\nlet grade;\n\nif (score >= 90) {\n  grade = "A";\n} else if (score >= 80) {\n  grade = "B";\n} else if (score >= 70) {\n  grade = "C";\n} else {\n  grade = "D";\n}\n\nconsole.log(`等级：${grade}`);',
+    detail: '<p>Python 使用 <code>elif</code>（else if 的缩写），JS 使用 <code>else if</code>（两个单词）。</p><p>Python 用<strong>缩进</strong>表示代码块，JS 用<strong>花括号 { }</strong> 包裹。条件表达式必须用括号括起来（JS），Python 则不需要。</p>'
+  },
+  {
+    id: 5,
+    title: '循环：for 与 while',
+    desc: '重复执行一段代码，减少重复劳动。',
+    tags: ['#基础', '#控制流', '#循环'],
+    python: '# Python — for & while\n# for 遍历列表\nfruits = ["苹果", "香蕉", "橘子"]\nfor f in fruits:\n    print(f"水果：{f}")\n\n# range() 循环\nfor i in range(5):  # 0~4\n    print(i)\n\n# while 循环\ncount = 0\nwhile count < 3:\n    print(count)\n    count += 1',
+    js: '// JavaScript — for & while\nlet fruits = ["苹果", "香蕉", "橘子"];\n\n// for...of 遍历\nfor (let f of fruits) {\n  console.log(`水果：${f}`);\n}\n\n// 经典 for 循环\nfor (let i = 0; i < 5; i++) {\n  console.log(i);\n}\n\n// while 循环\nlet count = 0;\nwhile (count < 3) {\n  console.log(count);\n  count++;\n}',
+    detail: '<p>Python 用 <code>for ... in ...</code> 直接遍历可迭代对象；JS 的 <code>for...of</code> 与之类似。</p><p>JS 还有经典的三段式 <code>for (let i=0; i&lt;n; i++)</code>，Python 用 <code>for i in range(n)</code> 替代。</p><p>注意 <code>range(5)</code> 生成 0~4（不含 5）。</p>'
+  },
+  {
+    id: 6,
+    title: '函数的定义与调用',
+    desc: '将可复用逻辑封装为函数，提高代码组织性。',
+    tags: ['#基础', '#函数'],
+    python: '# Python — def\ndef greet(name):\n    """向指定用户问好"""\n    return f"你好，{name}！"\n\n# 带默认参数的函数\ndef add(a, b=0):\n    return a + b\n\nprint(greet("小明"))\nprint(add(3, 5))  # 8\nprint(add(3))     # 3（b 默认 0）',
+    js: '// JavaScript — function\nfunction greet(name) {\n  // 向指定用户问好\n  return `你好，${name}！`;\n}\n\n// 箭头函数（推荐简洁写法）\nconst add = (a, b = 0) => a + b;\n\nconsole.log(greet("小明"));\nconsole.log(add(3, 5));  // 8\nconsole.log(add(3));     // 3（b 默认 0）',
+    detail: '<p>Python 用 <code>def</code> 定义函数，JS 有 <code>function</code> 和<strong>箭头函数</strong>两种方式。</p><p>两者都支持<strong>默认参数</strong>。Python 的函数体内首行字符串是 <code>docstring</code>（文档注释），可被 <code>help()</code> 查阅。</p><p>箭头函数 <code>() => {}</code> 是 ES6 引入的简洁写法，适合回调和高阶函数。</p>'
+  },
+  {
+    id: 7,
+    title: '列表（List）与数组（Array）',
+    desc: '存储多个元素的有序集合，是使用最频繁的数据结构。',
+    tags: ['#基础', '#数据结构'],
+    python: '# Python — 列表（List）\nnums = [1, 2, 3, 4, 5]\nnums.append(6)        # 尾部添加\nnums.insert(0, 0)     # 指定位置插入\nnums.pop()            # 弹出尾部\nnums.remove(3)        # 按值删除\n\n# 切片操作\nsub = nums[1:4]       # [1, 2, 4]\n\n# 列表推导式\nsquares = [x**2 for x in range(5)]  # [0,1,4,9,16]',
+    js: '// JavaScript — 数组（Array）\nlet nums = [1, 2, 3, 4, 5];\nnums.push(6);         // 尾部添加\nnums.unshift(0);      // 头部添加\nnums.pop();           // 弹出尾部\nnums.splice(2, 1);    // 删除索引2的元素\n\n// slice 切片\nlet sub = nums.slice(1, 4);  // [1, 2, 4]\n\n// map 映射\nlet squares = [0,1,2,3,4].map(x => x ** 2);',
+    detail: '<p>Python 列表和 JS 数组在功能上高度相似。</p><p><strong>Python 独有</strong>：列表推导式 <code>[x for x in ...]</code> 一行完成过滤+映射。JS 的 <code>.map()</code>、<code>.filter()</code> 需要链式调用。</p><p><strong>JS 独有</strong>：<code>.unshift()</code> 头部添加、<code>.splice()</code> 灵活删除/替换。</p>'
+  },
+  {
+    id: 8,
+    title: '字典（Dict）与对象（Object）',
+    desc: '键值对（key-value）存储结构，用于快速查找和映射。',
+    tags: ['#基础', '#数据结构'],
+    python: '# Python — 字典（Dict）\nstudent = {\n    "name": "小明",\n    "age": 20,\n    "scores": [85, 90, 78]\n}\n\n# 访问与修改\nprint(student["name"])\nstudent["age"] = 21\nstudent["grade"] = "大二"  # 动态添加\n\n# 遍历\nfor key, val in student.items():\n    print(f"{key}: {val}")',
+    js: '// JavaScript — 对象（Object）\nlet student = {\n  name: "小明",\n  age: 20,\n  scores: [85, 90, 78]\n};\n\n// 访问与修改\nconsole.log(student.name);  // 点语法\nconsole.log(student["name"]); // 方括号\nstudent.age = 21;\nstudent.grade = "大二";     // 动态添加\n\n// 遍历\nfor (let key in student) {\n  console.log(`${key}: ${student[key]}`);\n}',
+    detail: '<p>Python 字典和 JS 对象都是键值对结构，JS 中键不需要引号（除非含特殊字符）。</p><p>访问方式：Python 只能用 <code>["key"]</code>，JS 两种都支持 <code>.key</code> 和 <code>["key"]</code>。</p><p>遍历：Python 用 <code>.items()</code> 解构，JS 用 <code>for...in</code> 或 <code>Object.entries()</code>。</p>'
+  }
+];
+
+// ==================== 状态管理 ====================
+let currentLang = 'all';
+let searchQuery = '';
+let favorites = JSON.parse(localStorage.getItem('jb_notes_fav') || '[]');
+let recentViews = JSON.parse(localStorage.getItem('jb_notes_recent') || '[]');
+
+// ==================== 防抖 ====================
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+}
+
+// ==================== Toast ====================
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ==================== 主题 ====================
+function initTheme() {
+  const saved = localStorage.getItem('jb_notes_theme') || 'light';
+  document.body.setAttribute('data-theme', saved);
+  updateThemeIcon(saved);
+}
+function toggleTheme() {
+  const cur = document.body.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', next);
+  localStorage.setItem('jb_notes_theme', next);
+  updateThemeIcon(next);
+}
+function updateThemeIcon(theme) {
+  const btn = document.getElementById('themeToggle');
+  btn.innerHTML = theme === 'dark'
+    ? '<i class="fa-solid fa-sun"></i>'
+    : '<i class="fa-solid fa-moon"></i>';
+}
+
+// ==================== 收藏 ====================
+function toggleFavorite(cardId) {
+  const idx = favorites.indexOf(cardId);
+  if (idx > -1) {
+    favorites.splice(idx, 1);
+  } else {
+    favorites.push(cardId);
+  }
+  localStorage.setItem('jb_notes_fav', JSON.stringify(favorites));
+  renderAll();
+  showToast(idx > -1 ? '已取消收藏' : '⭐ 已收藏');
+}
+
+// ==================== 最近浏览 ====================
+function recordRecent(cardId) {
+  recentViews = recentViews.filter(id => id !== cardId);
+  recentViews.unshift(cardId);
+  if (recentViews.length > 3) recentViews.pop();
+  localStorage.setItem('jb_notes_recent', JSON.stringify(recentViews));
+  renderRecentList();
+}
+
+// ==================== 复制代码 ====================
+function copyCode(btn, code) {
+  navigator.clipboard.writeText(code).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+    showToast('✅ 代码已复制到剪贴板');
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '<i class="fa-regular fa-copy"></i>';
+    }, 1800);
+  }).catch(() => showToast('复制失败，请重试'));
+}
+
+// ==================== 展开/收起 ====================
+function toggleDetail(cardId) {
+  const el = document.getElementById('detail-' + cardId);
+  const btn = document.getElementById('expandBtn-' + cardId);
+  if (el.classList.contains('open')) {
+    el.classList.remove('open');
+    btn.textContent = '展开详情 ▼';
+  } else {
+    el.classList.add('open');
+    btn.textContent = '收起 ▲';
+  }
+}
+
+// ==================== 筛选逻辑 ====================
+function getFilteredCards() {
+  let cards = [...cardsData];
+
+  // 语言筛选
+  if (currentLang !== 'all') {
+    cards = cards.filter(c => c[currentLang] && c[currentLang].trim());
+  }
+
+  // 搜索筛选
+  if (searchQuery.trim()) {
+    const q = searchQuery.trim().toLowerCase();
+    cards = cards.filter(c =>
+      c.title.toLowerCase().includes(q) ||
+      c.desc.toLowerCase().includes(q) ||
+      c.tags.some(t => t.toLowerCase().includes(q))
+    );
+  }
+
+  // 收藏置顶
+  cards.sort((a, b) => {
+    const aFav = favorites.includes(a.id) ? -1 : 0;
+    const bFav = favorites.includes(b.id) ? -1 : 0;
+    return aFav - bFav;
+  });
+
+  return cards;
+}
+
+// ==================== 渲染 ====================
+function renderAll() {
+  renderCards();
+  renderStats();
+  renderToc();
+  renderRecentList();
+}
+
+function renderCards() {
+  const grid = document.getElementById('cardGrid');
+  const cards = getFilteredCards();
+
+  if (cards.length === 0) {
+    grid.innerHTML = `<div class="no-results"><i class="fa-solid fa-circle-question"></i><p>没有找到匹配的笔记</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = cards.map(c => {
+    const isFav = favorites.includes(c.id);
+    return `
+    <div class="card${isFav ? ' favorited' : ''}" id="card-${c.id}" data-card-id="${c.id}">
+      <div class="card-header">
+        <div class="card-title-area" onclick="recordRecent(${c.id})">
+          <div class="card-title">${escapeHtml(c.title)}</div>
+          <div class="card-desc">${escapeHtml(c.desc)}</div>
+          <div class="card-tags">${c.tags.map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>
+        </div>
+        <button class="star-btn${isFav ? ' active' : ''}" onclick="toggleFavorite(${c.id})" title="${isFav ? '取消收藏' : '收藏'}">
+          <i class="fa-${isFav ? 'solid' : 'regular'} fa-star"></i>
+        </button>
+      </div>
+      <div class="card-code">
+        <div class="code-tabs">
+          <button class="code-tab active" onclick="switchTab(${c.id},'python',this)">🐍 Python</button>
+          <button class="code-tab" onclick="switchTab(${c.id},'js',this)">🟨 JavaScript</button>
+        </div>
+        <div class="code-pane active" id="code-${c.id}-python">
+          <button class="copy-btn" onclick="copyCode(this, \`${escapeAttr(c.python)}\`)" title="复制代码">
+            <i class="fa-regular fa-copy"></i>
+          </button>
+          <pre><code class="language-python">${escapeHtml(c.python)}</code></pre>
+        </div>
+        <div class="code-pane" id="code-${c.id}-js">
+          <button class="copy-btn" onclick="copyCode(this, \`${escapeAttr(c.js)}\`)" title="复制代码">
+            <i class="fa-regular fa-copy"></i>
+          </button>
+          <pre><code class="language-javascript">${escapeHtml(c.js)}</code></pre>
+        </div>
+      </div>
+      <div class="card-footer">
+        <button class="expand-btn" id="expandBtn-${c.id}" onclick="toggleDetail(${c.id})">展开详情 ▼</button>
+      </div>
+      <div class="card-detail" id="detail-${c.id}">${c.detail}</div>
+    </div>`;
+  }).join('');
+
+  // 重新高亮
+  document.querySelectorAll('.card-grid pre code').forEach(block => {
+    hljs.highlightElement(block);
+  });
+}
+
+function switchTab(cardId, lang, btn) {
+  // 更新该卡片内的 tab 和 pane
+  const card = btn.closest('.card');
+  card.querySelectorAll('.code-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  card.querySelectorAll('.code-pane').forEach(p => p.classList.remove('active'));
+  card.querySelector(`#code-${cardId}-${lang}`).classList.add('active');
+
+  // 重新高亮（确保正确）
+  const codeBlock = card.querySelector(`#code-${cardId}-${lang} code`);
+  if (codeBlock) hljs.highlightElement(codeBlock);
+}
+
+function renderStats() {
+  const filtered = getFilteredCards();
+  const langs = new Set();
+  filtered.forEach(c => {
+    if (c.python && c.python.trim()) langs.add('Python');
+    if (c.js && c.js.trim()) langs.add('JavaScript');
+  });
+  document.getElementById('statTotal').textContent = filtered.length;
+  document.getElementById('statFav').textContent = favorites.length;
+  document.getElementById('statLang').textContent = langs.size;
+}
+
+function renderToc() {
+  const cards = getFilteredCards();
+  const el = document.getElementById('tocList');
+  el.innerHTML = cards.map(c =>
+    `<a class="toc-link" onclick="scrollToCard(${c.id})">${escapeHtml(c.title)}</a>`
+  ).join('');
+}
+
+function scrollToCard(cardId) {
+  recordRecent(cardId);
+  const el = document.getElementById('card-' + cardId);
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    el.style.boxShadow = '0 0 0 3px var(--accent)';
+    setTimeout(() => { el.style.boxShadow = ''; }, 1500);
+  }
+  // 移动端关闭侧边栏
+  closeSidebar();
+}
+
+function renderRecentList() {
+  const el = document.getElementById('recentList');
+  if (recentViews.length === 0) {
+    el.innerHTML = '<span style="font-size:12px;color:var(--text-muted);">暂无浏览记录</span>';
+    return;
+  }
+  el.innerHTML = recentViews.map(id => {
+    const card = cardsData.find(c => c.id === id);
+    return card
+      ? `<a class="recent-link" onclick="scrollToCard(${id})">🕐 ${escapeHtml(card.title)}</a>`
+      : '';
+  }).join('');
+}
+
+// ==================== 事件监听 ====================
+// 搜索（防抖）
+document.getElementById('searchInput').addEventListener('input', debounce(function(e) {
+  searchQuery = e.target.value;
+  renderAll();
+}, 200));
+
+// 语言筛选按钮
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    currentLang = this.dataset.lang;
+    renderAll();
+  });
+});
+
+// 主题切换
+document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+// 移动端侧边栏
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+const hamburger = document.getElementById('hamburger');
+
+hamburger.addEventListener('click', () => {
+  sidebar.classList.toggle('open');
+  overlay.classList.toggle('show');
+});
+overlay.addEventListener('click', closeSidebar);
+function closeSidebar() {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('show');
+}
+
+// 键盘快捷键：Ctrl+K 聚焦搜索
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    document.getElementById('searchInput').focus();
+  }
+});
+
+// ==================== 工具函数 ====================
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+function escapeAttr(str) {
+  return str.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
+}
+
+// ==================== 启动 ====================
+initTheme();
+renderAll();
+</script>
+
+</body>
+</html>

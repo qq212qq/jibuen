@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C++ STL 总结 · 算法竞赛版 — jibuen</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<style>
+/* ========== 主题变量 ========== */
+:root{
+  --sidebar-bg:#f4f6f9;--sidebar-border:#dce0e6;--sidebar-text:#3d4047;--sidebar-active-text:#0550b2;
+  --sidebar-active-bg:rgba(5,80,178,0.06);--sidebar-hover:rgba(0,0,0,0.03);
+  --content-bg:#fff;--content-text:#0d1117;--content-secondary:#4a4f58;--content-muted:#78808e;
+  --code-bg:#282c34;--code-text:#abb2bf;
+  --tip-bg:#eef5ff;--tip-border:#b6d3ff;--tip-text:#1a4480;
+  --warn-bg:#fff3e0;--warn-border:#f5c842;--warn-text:#7a4a0a;
+  --divider:#e8eaee;--progress-bg:#e8eaee;--progress-fill:#0550b2;
+  --search-bg:#fff;--search-border:#cfd4db;
+  --toast-bg:#0d1117;--toast-text:#fff;
+  --overlay:rgba(0,0,0,0.25);
+  --transition:0.25s cubic-bezier(0.22,0.61,0.36,1);
+  --radius:8px;--radius-lg:12px;
+}
+[data-theme="dark"]{
+  --sidebar-bg:#151b23;--sidebar-border:#2d333b;--sidebar-text:#b0b8c4;--sidebar-active-text:#79a8f7;
+  --sidebar-active-bg:rgba(121,168,247,0.08);--sidebar-hover:rgba(255,255,255,0.03);
+  --content-bg:#0d1117;--content-text:#d0d7de;--content-secondary:#8b949e;--content-muted:#6e7681;
+  --code-bg:#161b22;--code-text:#c9d1d9;
+  --tip-bg:rgba(121,168,247,0.08);--tip-border:rgba(121,168,247,0.22);--tip-text:#79a8f7;
+  --warn-bg:rgba(226,172,60,0.08);--warn-border:rgba(226,172,60,0.28);--warn-text:#e2ac3c;
+  --divider:#1e242c;--progress-bg:#1e242c;--progress-fill:#79a8f7;
+  --search-bg:#0d1117;--search-border:#2d333b;
+  --toast-bg:#d0d7de;--toast-text:#0d1117;
+  --overlay:rgba(0,0,0,0.6);
+}
+
+/* ========== 重置 ========== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;
+  background:var(--content-bg);color:var(--content-text);line-height:1.8;
+  -webkit-font-smoothing:antialiased;overflow:hidden;height:100vh;
+  transition:background var(--transition),color var(--transition);
+}
+
+/* ========== 主布局 ========== */
+.main-wrap{display:flex;height:100vh;}
+
+/* ========== 左侧目录栏 ========== */
+.sidebar{
+  width:300px;min-width:300px;background:var(--sidebar-bg);
+  border-right:1px solid var(--sidebar-border);display:flex;flex-direction:column;
+  transition:all var(--transition);z-index:100;
+}
+
+/* 搜索框 */
+.sidebar-search{
+  padding:14px 16px 10px;flex-shrink:0;
+}
+.sidebar-search .search-wrap{position:relative;}
+.sidebar-search input{
+  width:100%;padding:9px 12px 9px 34px;border-radius:8px;
+  border:1px solid var(--search-border);background:var(--search-bg);
+  font-size:13px;color:var(--content-text);outline:none;font-family:inherit;
+  transition:all 0.2s;
+}
+.sidebar-search input:focus{border-color:var(--sidebar-active-text);box-shadow:0 0 0 3px rgba(9,105,218,0.1);}
+.sidebar-search .s-icon{
+  position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--content-muted);font-size:13px;pointer-events:none;
+}
+
+/* 目录标题行 */
+.sidebar-title{
+  padding:6px 18px 8px;font-size:12px;font-weight:600;color:var(--content-muted);
+  text-transform:uppercase;letter-spacing:0.5px;display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.sidebar-title .theme-btn{
+  width:28px;height:28px;border-radius:6px;border:1px solid var(--sidebar-border);
+  background:var(--sidebar-bg);color:var(--content-muted);cursor:pointer;font-size:12px;
+  display:flex;align-items:center;justify-content:center;transition:all 0.2s;
+}
+.sidebar-title .theme-btn:hover{color:var(--content-text);}
+
+/* 目录树容器 */
+.tree-scroll{
+  flex:1;overflow-y:auto;padding:0 8px 12px;
+}
+.tree-scroll::-webkit-scrollbar{width:4px}
+.tree-scroll::-webkit-scrollbar-thumb{background:var(--divider);border-radius:2px}
+
+/* 底部头文件提示 */
+.sidebar-footer{
+  padding:10px 18px;border-top:1px solid var(--sidebar-border);flex-shrink:0;
+  font-size:11px;color:var(--content-muted);font-family:'JetBrains Mono','Cascadia Code',Consolas,monospace;
+}
+.sidebar-footer code{
+  background:var(--code-bg);color:var(--code-text);padding:2px 8px;border-radius:4px;font-size:11px;
+}
+
+/* ========== 目录树节点 ========== */
+.tree-list{list-style:none;padding:0;margin:0;}
+.tree-item{cursor:pointer;user-select:none;position:relative;}
+.tree-link{
+  display:flex;align-items:center;gap:4px;padding:5px 10px;margin:1px 0;border-radius:6px;
+  font-size:12.5px;color:var(--sidebar-text);text-decoration:none;
+  border-left:3px solid transparent;transition:all 0.15s;
+}
+.tree-link:hover{background:var(--sidebar-hover);border-left-color:var(--sidebar-border);}
+.tree-link.active{background:var(--sidebar-active-bg);color:var(--sidebar-active-text);font-weight:600;border-left-color:var(--sidebar-active-text);}
+.tree-link .tree-indent{color:var(--sidebar-border);flex-shrink:0;font-family:monospace;font-size:10px;min-width:14px;text-align:center;opacity:0.7;}
+.tree-link.active .tree-indent{opacity:1;}
+.tree-link .tree-arrow{width:14px;flex-shrink:0;font-size:8px;text-align:center;transition:all 0.2s;cursor:pointer;color:var(--content-muted);}
+.tree-link.active .tree-arrow,.tree-link:hover .tree-arrow{color:var(--sidebar-active-text);}
+.tree-link .tree-arrow.expanded{}
+.tree-link .tree-arrow.leaf{font-size:5px;cursor:default;}
+.tree-link .tree-label{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.45;}
+.tree-children{overflow:hidden;}
+.tree-children:not(.expanded){display:none;}
+
+/* ========== 右侧内容区 — 梵高《星月夜》深色油画 ========== */
+.content{
+  flex:1;overflow-y:auto;position:relative;transition:all var(--transition);
+  background-attachment:fixed;
+  /* 静态层：夜空基底 + 星星 + 月牙 + 柏树 + 笔触纹理 */
+  background:
+    /* 纹理4 - 圆形笔触漩涡感 */
+    radial-gradient(circle at 42% 26%, rgba(74,111,165,0.08) 0%, transparent 50%),
+    /* 纹理3 - 纵向笔触（柏树/山峦） */
+    repeating-linear-gradient(90deg, transparent 0%, transparent 97%, rgba(26,58,42,0.25) 97%, rgba(26,58,42,0.25) 98.5%, transparent 98.5%, transparent 100%),
+    /* 纹理2 - 横向笔触（天空流动感） */
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 2px, transparent 2px, transparent 14px),
+    /* 纹理1 - 粗画布 45deg */
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.04) 0px, rgba(255,255,255,0.04) 3px, transparent 3px, transparent 9px),
+    /* 星星5 - 中上亮星 */
+    radial-gradient(circle at 52% 8%, rgba(255,255,255,0.30) 0%, rgba(247,201,72,0.15) 30%, transparent 60%),
+    /* 星星4 - 右上方 */
+    radial-gradient(circle at 75% 14%, rgba(247,201,72,0.25) 0%, rgba(245,166,35,0.15) 35%, transparent 65%),
+    /* 星星3 - 左上亮星 */
+    radial-gradient(circle at 18% 12%, rgba(255,255,255,0.35) 0%, rgba(247,201,72,0.22) 40%, transparent 70%),
+    /* 星星2 - 中左 */
+    radial-gradient(circle at 30% 22%, rgba(247,201,72,0.20) 0%, rgba(245,166,35,0.12) 40%, transparent 65%),
+    /* 星星1 - 左上角小星 */
+    radial-gradient(circle at 8% 16%, rgba(255,255,255,0.22) 0%, transparent 50%),
+    /* 月牙内光 */
+    radial-gradient(ellipse at 84% 4%, rgba(255,248,231,0.40) 0%, rgba(247,201,72,0.20) 20%, transparent 50%),
+    /* 月牙外晕 */
+    radial-gradient(ellipse at 86% 6%, rgba(247,201,72,0.28) 0%, rgba(245,166,35,0.12) 30%, transparent 62%),
+    /* 夜空基底 - 更深更浓 */
+    linear-gradient(180deg, #0a0c1a 0%, #1a1c3b 30%, #2b1f4a 60%, #0d0a1a 100%);
+  animation:stars-breathe 4.5s ease-in-out infinite;
+}
+
+/* 旋转星云层 */
+.content::before{
+  content:'';position:fixed;top:0;left:300px;right:0;bottom:0;pointer-events:none;z-index:0;
+  background:
+    conic-gradient(from 0deg at 42% 26%, rgba(61,126,179,0.30), rgba(109,168,209,0.25), rgba(139,196,201,0.15), rgba(26,58,92,0.20), rgba(61,126,179,0.30));
+  animation:nebula-rotate 80s linear infinite;
+  will-change:transform;
+}
+[data-theme="dark"] .content::before{
+  background:
+    conic-gradient(from 0deg at 42% 26%, rgba(61,126,179,0.30), rgba(109,168,209,0.25), rgba(139,196,201,0.15), rgba(26,58,92,0.20), rgba(61,126,179,0.30));
+}
+[data-theme="light"] .content::before{
+  background:
+    conic-gradient(from 0deg at 42% 26%, rgba(61,126,179,0.14), rgba(109,168,209,0.10), rgba(139,196,201,0.06), rgba(26,58,92,0.08), rgba(61,126,179,0.14));
+}
+
+/* 暗化遮罩 */
+.content::after{
+  content:'';position:fixed;top:0;left:300px;right:0;bottom:0;pointer-events:none;z-index:0;
+  background:rgba(0,0,0,0.20);
+}
+[data-theme="light"] .content::after{
+  background:rgba(255,255,255,0.15);
+}
+
+/* 确保内容在遮罩之上 */
+.content-inner{position:relative;z-index:2;}
+.reading-progress{z-index:51;}
+
+/* 文字可读性 */
+.content-inner h1,.content-inner h2,.content-inner h3{
+  text-shadow:0 2px 14px rgba(0,0,0,0.70);
+}
+.content-inner p,.content-inner li{
+  text-shadow:0 1px 8px rgba(0,0,0,0.55);
+}
+
+/* 代码块浮起 */
+.code-block{
+  box-shadow:0 4px 20px rgba(0,0,0,0.35),0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* ===== 动画关键帧 ===== */
+@keyframes nebula-rotate{
+  to{transform:rotate(360deg);}
+}
+@keyframes stars-breathe{
+  0%,100%{background-size:100% 100%;}
+  25%{background-size:102% 102%;}
+  50%{background-size:100.5% 100.5%;}
+  75%{background-size:103% 103%;}
+}
+
+/* 亮色模式 */
+[data-theme="light"] .content{
+  background-attachment:scroll;
+  background:
+    radial-gradient(circle at 42% 26%, rgba(74,111,165,0.04) 0%, transparent 50%),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 14px),
+    repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 3px, transparent 3px, transparent 9px),
+    radial-gradient(circle at 52% 8%, rgba(255,255,255,0.20) 0%, rgba(247,201,72,0.10) 30%, transparent 60%),
+    radial-gradient(circle at 75% 14%, rgba(247,201,72,0.15) 0%, rgba(245,166,35,0.08) 35%, transparent 65%),
+    radial-gradient(circle at 18% 12%, rgba(255,255,255,0.25) 0%, rgba(247,201,72,0.14) 40%, transparent 70%),
+    radial-gradient(ellipse at 84% 4%, rgba(255,248,231,0.25) 0%, rgba(247,201,72,0.12) 20%, transparent 50%),
+    radial-gradient(ellipse at 86% 6%, rgba(247,201,72,0.18) 0%, rgba(245,166,35,0.08) 30%, transparent 62%),
+    linear-gradient(180deg, #2a3b6b 0%, #4a6fa5 40%, #3b2e5e 70%, #1a1c3b 100%);
+}
+[data-theme="light"] .content-inner{
+  background:rgba(255,255,255,0.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  border:1px solid rgba(0,0,0,0.06);box-shadow:0 2px 16px rgba(0,0,0,0.04);
+}
+[data-theme="light"] .content-inner h1,
+[data-theme="light"] .content-inner h2,
+[data-theme="light"] .content-inner h3{
+  text-shadow:0 2px 14px rgba(255,255,255,0.4);
+}
+[data-theme="light"] .content-inner p,
+[data-theme="light"] .content-inner li{
+  text-shadow:0 1px 8px rgba(255,255,255,0.25);
+}
+.content::-webkit-scrollbar{width:6px}
+.content::-webkit-scrollbar-thumb{background:var(--divider);border-radius:3px}
+
+/* 阅读进度条 */
+.reading-progress{
+  position:sticky;top:0;z-index:50;height:3px;background:var(--progress-bg);
+  transition:background var(--transition);
+}
+.reading-progress .bar{
+  height:100%;width:0;background:var(--progress-fill);transition:width 0.1s linear;
+}
+
+/* 内容排版 */
+.content-inner{
+  max-width:860px;margin:40px auto 60px;padding:48px 64px 80px;
+  background:rgba(13,17,23,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-lg);
+  box-shadow:0 8px 40px rgba(0,0,0,0.4);
+}
+
+.content-inner h1{font-size:28px;font-weight:700;margin:52px 0 16px;color:var(--content-text);letter-spacing:-0.01em;line-height:1.25;}
+.content-inner h1:first-child{margin-top:0;}
+.content-inner h2{font-size:21px;font-weight:650;margin:44px 0 14px;color:var(--content-text);line-height:1.3;}
+.content-inner h3{font-size:17px;font-weight:600;margin:34px 0 10px;color:var(--content-text);line-height:1.35;}
+.content-inner p{margin-bottom:14px;color:var(--content-secondary);font-size:15px;line-height:1.85;max-width:75ch;}
+.content-inner ul,.content-inner ol{margin:10px 0 18px 24px;color:var(--content-secondary);font-size:15px;max-width:75ch;}
+.content-inner li{margin-bottom:6px;line-height:1.8;}
+.content-inner code{
+  background:var(--tip-bg);color:var(--tip-text);padding:1px 7px;border-radius:4px;
+  font-family:'JetBrains Mono','Cascadia Code',Consolas,monospace;font-size:13.5px;
+}
+.content-inner a{color:var(--sidebar-active-text);text-decoration:none;}
+.content-inner a:hover{text-decoration:underline;}
+.content-inner hr{border:none;height:1px;background:var(--divider);margin:40px 0;}
+
+/* 代码块 */
+.code-block{position:relative;margin:22px 0;border-radius:var(--radius-lg);overflow:hidden;border:1px solid rgba(255,255,255,0.06);box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.code-block .code-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:8px 16px;background:rgba(0,0,0,0.18);border-bottom:1px solid rgba(255,255,255,0.04);
+}
+.code-lang{font-size:11px;color:rgba(255,255,255,0.35);font-weight:500;letter-spacing:0.01em;}
+.copy-btn{
+  width:30px;height:30px;border-radius:6px;border:none;
+  background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.3);
+  cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;
+}
+.copy-btn:hover{background:rgba(255,255,255,0.1);color:#fff;}
+.copy-btn.done{color:#4ade80;background:rgba(74,222,128,0.1);}
+.code-block pre{margin:0;padding:18px 20px;overflow-x:auto;background:var(--code-bg);}
+.code-block pre code{background:transparent;color:var(--code-text);font-size:13.5px;line-height:1.7;padding:0;font-family:'JetBrains Mono','Cascadia Code',Consolas,monospace;}
+
+/* 提示框 */
+.callout{margin:20px 0;padding:14px 20px;border-radius:var(--radius);font-size:13.5px;line-height:1.75;display:flex;gap:10px;align-items:flex-start;}
+.callout.info{background:var(--tip-bg);border:1px solid var(--tip-border);color:var(--tip-text);}
+.callout.warn{background:var(--warn-bg);border:1px solid var(--warn-border);color:var(--warn-text);}
+.callout i{flex-shrink:0;margin-top:2px;opacity:0.8;}
+
+/* 汉堡菜单按钮 */
+.hamburger{
+  display:none;position:fixed;top:12px;left:12px;z-index:300;
+  width:36px;height:36px;border-radius:8px;border:1px solid var(--sidebar-border);
+  background:var(--sidebar-bg);color:var(--content-text);cursor:pointer;font-size:16px;
+  align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.08);
+}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:9999;
+  background:var(--toast-bg);color:var(--toast-text);padding:10px 24px;border-radius:24px;
+  font-size:13px;pointer-events:none;opacity:0;transition:opacity 0.3s;
+  box-shadow:0 8px 24px rgba(0,0,0,0.2);
+}
+.toast.show{opacity:1;}
+
+/* 搜索覆盖层（移动端） */
+.search-results{
+  padding:4px 0;max-height:200px;overflow-y:auto;border-top:1px solid var(--sidebar-border);
+}
+.search-results .sr-item{
+  padding:5px 16px;font-size:12px;color:var(--sidebar-text);cursor:pointer;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.search-results .sr-item:hover{background:var(--sidebar-hover);}
+.search-results .sr-item mark{background:#ffe58f;color:#1a1a2e;border-radius:2px;padding:0 2px;}
+.search-results .sr-empty{padding:10px 16px;font-size:12px;color:var(--content-muted);}
+
+/* ========== 响应式 ========== */
+@media(max-width:768px){
+  .hamburger{display:flex;}
+  .sidebar{
+    position:fixed;left:-310px;top:0;bottom:0;box-shadow:0 0 24px rgba(0,0,0,0.15);
+    transition:left 0.3s;z-index:250;
+  }
+  .sidebar.mobile-open{left:0;}
+  .sidebar-overlay{
+    display:none;position:fixed;inset:0;z-index:240;background:var(--overlay);
+  }
+  .sidebar-overlay.show{display:block;}
+  .content-inner{padding:28px 18px 40px;margin:16px 8px 30px;}
+  .content::before,.content::after{left:0;}
+  .content-inner h1{font-size:22px;}
+  .content-inner h2{font-size:18px;}
+  .content-inner h3{font-size:16px;}
+  .content-inner p,.content-inner li{font-size:14px;}
+}
+</style>
+</head>
+<body data-theme="light">
+
+<!-- 汉堡菜单（移动端） -->
+<button class="hamburger" id="hamburger" aria-label="目录"><i class="fa-solid fa-bars"></i></button>
+
+<!-- 移动端覆盖层 -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ========== 主布局 ========== -->
+<div class="main-wrap">
+
+<!-- ===== 左侧目录栏 ===== -->
+<aside class="sidebar" id="sidebar">
+  <!-- 搜索 -->
+  <div class="sidebar-search">
+    <div class="search-wrap">
+      <i class="fa-solid fa-magnifying-glass s-icon"></i>
+      <input type="text" id="searchInput" placeholder="搜索标题或内容...">
+    </div>
+    <div class="search-results" id="searchResults" style="display:none;"></div>
+  </div>
+
+  <!-- 目录标题 -->
+  <div class="sidebar-title">
+    📑 目录
+    <button class="theme-btn" id="themeBtn" title="切换主题"><i class="fa-solid fa-moon"></i></button>
+  </div>
+
+  <!-- 目录树 -->
+  <div class="tree-scroll" id="treeScroll"></div>
+
+  <!-- 底部头文件 -->
+  <div class="sidebar-footer">📦 头文件：<code id="headerHint">#include &lt;vector&gt;</code></div>
+</aside>
+
+<!-- ===== 右侧内容区 ===== -->
+<main class="content" id="content">
+  <div class="reading-progress"><div class="bar" id="progressBar"></div></div>
+  <div class="content-inner" id="contentInner"></div>
+</main>
+
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== 数据 ====================
+const TREE = [
+  { id:'vec',      num:'1.',  title:'vector',          header:'#include <vector>',
+    children:[
+      { id:'vec-1',   num:'1.1', title:'介绍', parent:'vec',
+        children:[
+          { id:'vec-1-1', num:'1.1.1', title:'简介',     parent:'vec-1', header:'#include <vector>' },
+          { id:'vec-1-2', num:'1.1.2', title:'初始化',   parent:'vec-1', header:'#include <vector>' },
+          { id:'vec-1-3', num:'1.1.3', title:'方法函数', parent:'vec-1', header:'#include <vector>' }
+      ]},
+      { id:'vec-2',   num:'1.2', title:'深入探索', parent:'vec', header:'#include <vector>' },
+      { id:'vec-3',   num:'1.3', title:'元素访问', parent:'vec', header:'#include <vector>' }
+  ]},
+  { id:'stack',    num:'2.',  title:'stack',            header:'#include <stack>',
+    children:[
+      { id:'stack-1',   num:'2.1', title:'基本操作',   parent:'stack', header:'#include <stack>' },
+      { id:'stack-2',   num:'2.2', title:'常见应用',   parent:'stack', header:'#include <stack>' },
+      { id:'stack-3',   num:'2.3', title:'注意事项',   parent:'stack', header:'#include <stack>' }
+  ]},
+  { id:'queue',    num:'3.',  title:'queue',            header:'#include <queue>' },
+  { id:'deque',    num:'4.',  title:'deque',            header:'#include <deque>' },
+  { id:'pq',       num:'5.',  title:'priority_queue',   header:'#include <queue>' },
+  { id:'map',      num:'6.',  title:'map',              header:'#include <map>' },
+  { id:'set',      num:'7.',  title:'set',              header:'#include <set>' },
+  { id:'pair',     num:'8.',  title:'pair',             header:'#include <utility>' },
+  { id:'string',   num:'9.',  title:'string',           header:'#include <string>' },
+  { id:'bitset',   num:'10.', title:'bitset',           header:'#include <bitset>' },
+  { id:'array',    num:'11.', title:'array',            header:'#include <array>' },
+  { id:'tuple',    num:'12.', title:'tuple',            header:'#include <tuple>' }
+];
+
+// ==================== 正文内容数据 ====================
+const CONTENTS = {
+
+'vec':`
+<h1>1. vector — 动态数组</h1>
+<p>vector 是 C++ STL 中<strong>使用频率最高</strong>的容器。它的底层是<strong>连续内存的动态数组</strong>，支持 O(1) 随机访问，尾部插入/删除均摊 O(1)，中间插入/删除 O(n)。</p>
+<p>在算法竞赛中，vector 几乎完全替代了 C 风格数组。当你事先不知道数组大小时，或者需要返回数组作为函数返回值时，vector 是最佳选择。</p>
+<div class="callout info"><i class="fa-solid fa-circle-info"></i><span>vector 的核心优势：连续存储 → 缓存友好，遍历效率高；动态扩容 → 无需手动管理内存；丰富的成员函数 → 开发效率远高于原始数组。</span></div>
+`,
+
+'vec-1':`
+<h2>1.1 介绍</h2>
+<p>vector（向量）是 STL 中最基础的<strong>序列容器</strong>，它的底层实现是连续内存空间，类似于数组，但大小可以动态变化。</p>
+<p>当容量不足时，vector 会重新分配一块<strong>原来两倍大小</strong>的新空间，将原有元素拷贝过去，然后释放旧空间。这就是为什么在循环中频繁 push_back 可能导致多次内存重分配的原因。</p>
+<div class="callout warn"><i class="fa-solid fa-triangle-exclamation"></i><span><strong>注意：</strong>重新分配空间会导致所有指向原内存的迭代器、指针、引用全部失效！如果在循环中修改 vector 大小需格外小心。</span></div>
+<p>核心特点总结：</p>
+<ul>
+  <li>连续存储 → 缓存友好，遍历效率高</li>
+  <li>支持 <code>[]</code> 运算符 → O(1) 随机访问</li>
+  <li><code>push_back()</code> → 均摊 O(1) 尾部插入</li>
+  <li><code>pop_back()</code> → O(1) 尾部删除</li>
+</ul>
+`,
+
+'vec-1-1':`
+<h2>1.1.1 简介</h2>
+<p>vector 是 C++ 标准模板库中一个<strong>可以动态改变大小的数组</strong>。它封装了动态数组的实现细节，程序员可以像使用普通数组一样使用它，同时享受自动内存管理的便利。</p>
+<p>相比于 C 风格数组，vector 有 <strong>边界检查</strong>（<code>.at()</code>）、<strong>自动扩容</strong>、<strong>可直接整体赋值和比较</strong>等优势。</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;vector&gt;
+using namespace std;
+
+vector&lt;int&gt; arr;                    // 声明一个空 vector
+arr.push_back(10);                 // 尾部插入 10
+arr.push_back(20);                 // 尾部插入 20
+cout &lt;&lt; arr[0] &lt;&lt; endl;            // 随机访问第一个元素 → 10
+cout &lt;&lt; arr.size() &lt;&lt; endl;        // 当前元素个数 → 2
+arr.pop_back();                    // 删除最后一个元素</code></pre></div>
+<div class="callout info"><i class="fa-solid fa-lightbulb"></i><span><strong>提示：</strong>指定长度后 vector 就和普通数组一样了，可以安全地用 <code>[]</code> 访问和赋值。只有在需要边读入边动态扩展时才用 <code>push_back</code>。</span></div>
+`,
+
+'vec-1-2':`
+<h2>1.1.2 初始化</h2>
+<p>vector 提供了多种初始化方式，根据不同场景选择最合适的：</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++ — 初始化的六种方式</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">vector&lt;int&gt; v1;                  // ① 空 vector，size=0
+vector&lt;int&gt; v2(5);               // ② 5 个元素，默认值 0 → {0,0,0,0,0}
+vector&lt;int&gt; v3(5, 10);           // ③ 5 个元素，值都是 10 → {10,10,10,10,10}
+vector&lt;int&gt; v4 = {1, 2, 3, 4};   // ④ 初始化列表（C++11）
+vector&lt;int&gt; v5(v4);              // ⑤ 拷贝构造
+vector&lt;int&gt; v6(v4.begin(), v4.begin()+2); // ⑥ 迭代器范围 → {1, 2}
+
+// 二维 vector（竞赛中常用于邻接表等）
+vector&lt;vector&lt;int&gt;&gt; mat(3, vector&lt;int&gt;(4, 0)); // 3 行 4 列，全 0</code></pre></div>
+<div class="callout info"><i class="fa-solid fa-lightbulb"></i><span>指定长度后数组就相当于正常数组了：<code>vector&lt;int&gt; v(5); v[0] = 10;</code> 完全合法。竞赛中如果已知数据量，建议先 <code>resize</code> 再直接用下标赋值，效率更高。</span></div>
+`,
+
+'vec-1-3':`
+<h2>1.1.3 方法函数</h2>
+<p>vector 提供了丰富的成员函数，以下是竞赛中最常用的：</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++ — 常用成员函数</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">vector&lt;int&gt; v = {3, 1, 4, 1, 5};
+
+// —— 容量相关 ——
+v.size()        // 当前元素个数 → 5
+v.capacity()    // 已分配容量（≥ size）
+v.empty()       // 是否为空 → false
+v.resize(10)    // 调整大小为 10，新元素默认 0
+v.resize(10, 9) // 调整大小为 10，新元素值为 9
+v.reserve(100)  // 预留 100 容量，避免频繁扩容
+
+// —— 增删 ——
+v.push_back(9)  // 尾部添加 9
+v.pop_back()    // 删除最后一个元素
+v.insert(v.begin()+2, 99)  // 在索引 2 处插入 99
+v.erase(v.begin()+1)       // 删除索引 1 的元素
+v.clear()       // 清空所有元素
+
+// —— 访问 ——
+v[0]            // 不检查边界（竞赛推荐，速度快）
+v.at(0)         // 检查边界（越界抛出 std::out_of_range）
+v.front()       // 第一个元素 → 3
+v.back()        // 最后一个元素 → 5</code></pre></div>
+<div class="callout warn"><i class="fa-solid fa-triangle-exclamation"></i><span><code>reserve()</code> 只改变<strong>容量</strong>不改变<strong>大小</strong>，<code>resize()</code> 改变大小并初始化新元素。竞赛中在已知元素数量时先 <code>reserve()</code> 可避免多次扩容带来的拷贝开销。</span></div>
+`,
+
+'vec-2':`
+<h2>1.2 深入探索</h2>
+<p>vector 在算法竞赛中的进阶用法和常见技巧：</p>
+<h3>遍历方式对比</h3>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">vector&lt;int&gt; v = {1, 2, 3, 4, 5};
+
+// 方式一：传统 for（需要索引时推荐）
+for (int i = 0; i &lt; v.size(); i++)
+    cout &lt;&lt; v[i] &lt;&lt; " ";
+
+// 方式二：范围 for（不需要索引时推荐）
+for (int x : v) cout &lt;&lt; x &lt;&lt; " ";
+
+// 方式三：范围 for + 引用（需要修改元素）
+for (auto &amp;x : v) x *= 2;
+
+// 方式四：迭代器（兼容老代码）
+for (auto it = v.begin(); it != v.end(); ++it)
+    cout &lt;&lt; *it &lt;&lt; " ";</code></pre></div>
+
+<h3>排序与去重（竞赛三步曲）</h3>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">vector&lt;int&gt; v = {3, 1, 4, 1, 5, 9, 2, 6};
+
+// 升序排序
+sort(v.begin(), v.end());
+
+// 降序排序
+sort(v.begin(), v.end(), greater&lt;int&gt;());
+
+// 去重（需先排序！先 unique 再 erase）
+v.erase(unique(v.begin(), v.end()), v.end());
+
+// 以上三步可写成一行
+sort(v.begin(), v.end());
+v.erase(unique(v.begin(), v.end()), v.end());</code></pre></div>
+
+<h3>内存管理技巧</h3>
+<p>当你有一个很大的 vector 且确定不再需要时，可以用 <code>v.clear()</code> 清空元素，但容量不会释放。真正释放内存的做法：</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">vector&lt;int&gt; v;
+// ... 大量操作 ...
+vector&lt;int&gt;().swap(v);  // 清空并释放内存
+// 或者 C++11 起：
+v.shrink_to_fit();       // 请求缩减容量（不保证一定释放）</code></pre></div>
+`,
+
+'vec-3':`
+<h2>1.3 元素访问</h2>
+<p>vector 提供了多种元素访问方式，选择取决于是否需要边界检查：</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">vector&lt;int&gt; v = {10, 20, 30, 40, 50};
+
+v[2]        // → 30（不检查边界，竞赛首选：速度快）
+v.at(2)     // → 30（检查边界，越界抛 std::out_of_range）
+v.front()   // → 10（第一个元素）
+v.back()    // → 50（最后一个元素）
+
+// data() 返回底层数组指针，方便与 C 接口互操作
+int *p = v.data();
+cout &lt;&lt; p[3];  // → 40</code></pre></div>
+<div class="callout warn"><i class="fa-solid fa-triangle-exclamation"></i><span>竞赛中优先使用 <code>[]</code>（速度快、无开销），调试阶段可用 <code>.at()</code> 帮助定位数组越界问题。但 <code>.at()</code> 有额外分支判断，卡常数时不推荐。</span></div>
+`,
+
+// ========== stack ==========
+'stack':`
+<h1>2. stack — 栈</h1>
+<p>stack（栈）是一种<strong>后进先出（LIFO，Last In First Out）</strong>的数据结构。只能在一端（栈顶）进行插入和删除操作，就像摞盘子——后放的先拿。</p>
+<p>底层通常由 <strong>deque</strong> 实现，STL 将其封装为仅暴露栈操作接口的容器适配器。</p>
+<div class="callout info"><i class="fa-solid fa-circle-info"></i><span>栈是<strong>受限的线性表</strong>——功能少但语义清晰。在需要"后进先出"逻辑的场景下，用 stack 比用 vector 更能表达意图，代码更易读。</span></div>
+`,
+
+'stack-1':`
+<h2>2.1 基本操作</h2>
+<p>stack 的接口非常精简，只有 5 个核心操作：</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++ — stack 基本操作</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;stack&gt;
+using namespace std;
+
+stack&lt;int&gt; stk;
+
+// —— 入栈 ——
+stk.push(1);     // 栈底 → 栈顶: [1]
+stk.push(2);     // [1, 2]
+stk.push(3);     // [1, 2, 3]
+
+// —— 访问栈顶 ——
+stk.top();       // → 3（只读，不弹出）
+
+// —— 弹出栈顶 ——
+stk.pop();       // [1, 2]
+
+// —— 容量 ——
+stk.size();      // 当前元素个数 → 2
+stk.empty();     // 是否为空 → false</code></pre></div>
+<div class="callout warn"><i class="fa-solid fa-triangle-exclamation"></i><span><strong>注意：</strong><code>pop()</code> 不返回值！要先 <code>top()</code> 取值再 <code>pop()</code> 删除。对空栈调用 <code>top()</code> 或 <code>pop()</code> 是未定义行为，竞赛中会直接 RE。</span></div>
+`,
+
+'stack-2':`
+<h2>2.2 常见应用</h2>
+<h3>括号匹配</h3>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++ — 括号匹配</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">bool isValid(string s) {
+    stack&lt;char&gt; stk;
+    for (char c : s) {
+        if (c == '(' || c == '[' || c == '{')
+            stk.push(c);
+        else {
+            if (stk.empty()) return false;
+            char top = stk.top(); stk.pop();
+            if ((c == ')' && top != '(') ||
+                (c == ']' && top != '[') ||
+                (c == '}' && top != '{'))
+                return false;
+        }
+    }
+    return stk.empty();
+}</code></pre></div>
+
+<h3>单调栈 — 下一个更大元素</h3>
+<p>单调栈是竞赛中 stack 的最高频用法。维护栈内元素单调递增或递减，O(n) 解决"找下一个更大/更小"问题。</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++ — 单调栈模板</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">// 求每个元素右边第一个比它大的元素（单调递减栈）
+vector&lt;int&gt; nextGreater(vector&lt;int&gt;& nums) {
+    int n = nums.size();
+    vector&lt;int&gt; ans(n, -1);
+    stack&lt;int&gt; stk;  // 存下标
+    for (int i = 0; i &lt; n; i++) {
+        while (!stk.empty() && nums[stk.top()] &lt; nums[i]) {
+            ans[stk.top()] = nums[i];
+            stk.pop();
+        }
+        stk.push(i);
+    }
+    return ans;
+}</code></pre></div>
+<div class="callout info"><i class="fa-solid fa-circle-info"></i><span>单调栈的精髓：每个元素<strong>入栈一次、出栈一次</strong>，总复杂度 O(n)。竞赛中常配合 <code>stack&lt;int&gt;</code> 存下标而非存值，方便同时访问原数组。</span></div>
+`,
+
+'stack-3':`
+<h2>2.3 注意事项</h2>
+<h3>遍历 stack</h3>
+<p>stack 不支持迭代器和范围 for 循环。只能逐个弹出：</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">// 遍历（会清空栈，通常用于调试）
+while (!stk.empty()) {
+    cout &lt;&lt; stk.top() &lt;&lt; " ";
+    stk.pop();
+}
+
+// 如需保留栈内容，先拷贝到临时栈再遍历
+stack&lt;int&gt; tmp = stk;
+while (!tmp.empty()) {
+    cout &lt;&lt; tmp.top() &lt;&lt; " ";
+    tmp.pop();
+}</code></pre></div>
+
+<h3>清空 stack</h3>
+<div class="callout warn"><i class="fa-solid fa-triangle-exclamation"></i><span>stack <strong>没有</strong> <code>clear()</code> 方法！清空方式：<code>while(!stk.empty()) stk.pop();</code> 或 <code>stk = stack&lt;int&gt;();</code></span></div>
+
+<h3>底层容器切换</h3>
+<p>stack 默认用 deque，可指定用 vector（连续内存，缓存更友好）：</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">stack&lt;int, vector&lt;int&gt;&gt; stk;  // 用 vector 作底层容器</code></pre></div>
+`,
+
+// ========== queue ==========
+'queue':`
+<h1>3. queue — 队列</h1>
+<p>queue（队列）是一种<strong>先进先出（FIFO，First In First Out）</strong>的数据结构。底层通常由 deque 实现。</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;queue&gt;
+using namespace std;
+
+queue&lt;int&gt; q;
+
+q.push(1);       // 入队
+q.push(2);
+q.push(3);
+q.front();       // 取队首 → 1
+q.back();        // 取队尾 → 3
+q.pop();         // 弹出队首
+q.size();        // 元素个数
+q.empty();       // 是否为空</code></pre></div>
+<div class="callout info"><i class="fa-solid fa-circle-info"></i><span>竞赛常见应用：<strong>BFS 广度优先搜索</strong>、消息队列、生产者-消费者模型。</span></div>
+`,
+
+// ========== deque ==========
+'deque':`
+<h1>4. deque — 双端队列</h1>
+<p>deque（double-ended queue）支持<strong>头部和尾部</strong>的高效插入/删除（O(1)）。底层使用<strong>分段连续空间</strong>，随机访问也是 O(1)，但遍历效率略低于 vector。</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;deque&gt;
+using namespace std;
+
+deque&lt;int&gt; dq = {1, 2, 3};
+
+dq.push_front(0);    // 头部插入 → {0, 1, 2, 3}
+dq.push_back(4);     // 尾部插入 → {0, 1, 2, 3, 4}
+dq.pop_front();      // 弹出头部
+dq.pop_back();       // 弹出尾部
+dq.front();          // 访问头部
+dq.back();           // 访问尾部
+
+// deque 也支持 [] 随机访问
+dq[0];               // 访问第一个元素</code></pre></div>
+<div class="callout info"><i class="fa-solid fa-circle-info"></i><span>竞赛常见应用：<strong>单调队列</strong>（滑动窗口最大值/最小值）、双端 BFS（0-1 BFS）。</span></div>
+<div class="callout warn"><i class="fa-solid fa-triangle-exclamation"></i><span>deque 功能虽然强大（同时支持头尾操作 + 随机访问），但在只需要尾部操作时优先用 vector（连续内存，cache 更友好）。</span></div>
+`,
+
+// ========== priority_queue ==========
+'pq':`
+<h1>5. priority_queue — 优先队列（堆）</h1>
+<p>priority_queue（优先队列）即<strong>堆（Heap）</strong>。默认是<strong>大顶堆</strong>（最大元素在队首）。底层使用 vector 存储，通过堆排序维护性质。</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;queue&gt;
+using namespace std;
+
+// 默认：大顶堆
+priority_queue&lt;int&gt; pq;
+pq.push(5); pq.push(1); pq.push(3);
+pq.top();        // → 5（最大值）
+pq.pop();        // 弹出堆顶
+
+// 小顶堆
+priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; pq_min;
+pq_min.push(5); pq_min.push(1); pq_min.push(3);
+pq_min.top();    // → 1（最小值）
+
+// 自定义比较（pair 默认按 first 再按 second）
+priority_queue&lt;pair&lt;int,int&gt;&gt; pq_pair;</code></pre></div>
+<div class="callout info"><i class="fa-solid fa-circle-info"></i><span>竞赛常见应用：<strong>Dijkstra 最短路</strong>、Top K 问题、哈夫曼编码、合并果子（贪心）。</span></div>
+<div class="callout warn"><i class="fa-solid fa-triangle-exclamation"></i><span>priority_queue 没有迭代器，也不能用范围 for 遍历。只能通过 <code>top()</code> + <code>pop()</code> 逐个访问。如果需要同时支持遍历，考虑用 <code>multiset</code>。</span></div>
+`,
+
+// ========== map ==========
+'map':`
+<h1>6. map — 映射</h1>
+<p>map 是<strong>有序键值对</strong>容器，底层使用<strong>红黑树</strong>实现。键唯一且自动按键排序，插入/查找/删除复杂度均为 O(log n)。</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;map&gt;
+using namespace std;
+
+map&lt;string, int&gt; mp;
+
+mp["apple"] = 5;          // 插入或修改
+mp["banana"] = 3;
+mp.insert({"cherry", 7}); // 插入（键已存在则忽略）
+
+mp["apple"];              // 访问（不存在则自动插入默认值 0）
+mp.count("apple");        // 是否存在 → 1（0 或 1）
+mp.find("apple");         // 返回迭代器（不存在返回 mp.end()）
+mp.erase("apple");        // 删除
+
+// 遍历（C++17 结构化绑定）
+for (auto &amp;[k, v] : mp)
+    cout &lt;&lt; k &lt;&lt; ": " &lt;&lt; v &lt;&lt; endl;</code></pre></div>
+<div class="callout info"><i class="fa-solid fa-circle-info"></i><span>大多数竞赛场景推荐用 <code>unordered_map</code>（哈希表，均摊 O(1)）。仅在需要<strong>有序遍历</strong>或<strong>按 key 范围查找</strong>时使用 map。</span></div>
+<div class="callout warn"><i class="fa-solid fa-triangle-exclamation"></i><span>使用 <code>mp["key"]</code> 访问不存在的键时会<strong>自动插入</strong>该键并赋默认值！如果只想检查是否存在，请用 <code>mp.count(key)</code> 或 <code>mp.find(key)</code>。</span></div>
+`,
+
+// ========== set ==========
+'set':`
+<h1>7. set — 集合</h1>
+<p>set 是<strong>有序且不重复</strong>的元素集合，底层使用红黑树，操作复杂度 O(log n)。multiset 允许重复元素，unordered_set 是哈希版本（O(1)）。</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;set&gt;
+using namespace std;
+
+set&lt;int&gt; s = {3, 1, 4, 1, 5};  // → {1, 3, 4, 5}（自动去重排序）
+
+s.insert(2);            // 插入
+s.erase(3);             // 删除值为 3 的元素
+s.count(1);             // 是否存在 → 1
+s.find(4);              // 返回迭代器
+
+// 二分查找
+s.lower_bound(3);       // 第一个 ≥ 3 的迭代器
+s.upper_bound(3);       // 第一个 > 3 的迭代器
+
+// multiset：允许重复
+multiset&lt;int&gt; ms;
+ms.insert(1); ms.insert(1);  // 两个 1
+ms.erase(ms.find(1));        // 只删一个（推荐！）
+// ms.erase(1) → 会删除所有 1！（坑）</code></pre></div>
+<div class="callout warn"><i class="fa-solid fa-triangle-exclamation"></i><span><strong>大坑：</strong>multiset 的 <code>erase(x)</code> 会删除<strong>所有</strong>值为 x 的元素！删除单个请用 <code>ms.erase(ms.find(x))</code>。</span></div>
+`,
+
+// ========== pair ==========
+'pair':`
+<h1>8. pair — 二元组</h1>
+<p>pair 将两个值绑定为一个整体，常用于需要同时返回两个值、存储坐标、或作为 map 的键值容器。</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;utility&gt; // pair 定义于此（通常被其它头文件间接包含）
+using namespace std;
+
+pair&lt;int, string&gt; p1 = {1, "hello"};
+pair&lt;int, string&gt; p2 = make_pair(2, "world");
+
+p1.first;             // → 1
+p1.second;            // → "hello"
+
+// C++17 结构化绑定
+auto [num, str] = p1; // num=1, str="hello"
+
+// 比较规则：先比 first，再比 second
+vector&lt;pair&lt;int,int&gt;&gt; vp = {{1,5},{1,3},{2,1}};
+sort(vp.begin(), vp.end());
+// 结果：{1,3}, {1,5}, {2,1}</code></pre></div>
+<div class="callout info"><i class="fa-solid fa-circle-info"></i><span>pair 自带 <code>&lt;</code> 运算符（先 first 后 second），所以可以直接放入 <code>set</code>、<code>map</code>，也可以用 <code>sort</code> 排序。</span></div>
+`,
+
+// ========== string ==========
+'string':`
+<h1>9. string — 字符串</h1>
+<p>string 本质是 <code>basic_string&lt;char&gt;</code>，拥有 vector 的大部分操作，并额外提供了字符串专属的查找、替换、子串等功能。</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;string&gt;
+using namespace std;
+
+string s = "hello world";
+
+s.length();                  // 长度 → 11
+s.substr(0, 5);              // 子串 → "hello"（从 0 取 5 个）
+s.find("wo");                // 查找 → 6（首次出现位置）
+s.find("xyz");               // 未找到 → string::npos
+s.replace(6, 5, "C++");     // 替换 → "hello C++"
+s.insert(5, " dear");        // 插入 → "hello dear C++"
+s.erase(5, 5);               // 删除
+
+// 数值转换
+int n = stoi("123");         // 字符串→整数
+double d = stod("3.14");     // 字符串→浮点
+string str = to_string(456); // 整数→字符串
+
+// 遍历（和 vector 一样）
+for (char c : s) cout &lt;&lt; c;</code></pre></div>
+<div class="callout info"><i class="fa-solid fa-circle-info"></i><span><code>substr(pos, len)</code> 是竞赛最高频的字符串操作之一。注意第二个参数是<strong>长度</strong>而非结束位置，省略则取到末尾。</span></div>
+`,
+
+// ========== bitset ==========
+'bitset':`
+<h1>10. bitset — 位集</h1>
+<p>bitset 是按位存储的<strong>定长二进制数组</strong>。每个元素只占 1 bit，空间效率极高（是 bool 数组的 1/8）。长度必须是<strong>编译期常量</strong>。</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;bitset&gt;
+using namespace std;
+
+bitset&lt;8&gt; b1;              // 00000000
+bitset&lt;8&gt; b2(42);           // 00101010（42 的二进制）
+bitset&lt;8&gt; b3("1100");       // 00001100
+
+b2.set(3);       // 第 3 位置 1
+b2.reset(1);     // 第 1 位置 0
+b2.flip(2);      // 第 2 位翻转
+b2.test(0);      // 测试第 0 位 → true
+b2.count();      // 1 的个数
+b2.any();        // 是否有 1
+
+// 位运算
+auto b4 = b2 &amp; b3;  // 按位与
+auto b5 = b2 | b3;  // 按位或
+auto b6 = b2 ^ b3;  // 按位异或</code></pre></div>
+<div class="callout info"><i class="fa-solid fa-circle-info"></i><span>竞赛常用于：标记数组压缩、集合运算、筛法优化。比 <code>vector&lt;bool&gt;</code> 更快更安全（vector&lt;bool&gt; 是特化版本，行为与普通 vector 不同）。</span></div>
+`,
+
+// ========== array ==========
+'array':`
+<h1>11. array — 定长数组</h1>
+<p>array 是 STL 封装的<strong>定长数组</strong>，大小在编译时确定。相比 C 风格数组更安全（有 <code>.at()</code> 边界检查），且完全兼容 STL 算法。</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;array&gt;
+using namespace std;
+
+array&lt;int, 5&gt; arr = {1, 2, 3, 4, 5};
+
+arr[0];                   // 访问
+arr.at(0);                // 边界检查访问
+arr.front(); arr.back();  // 首 / 尾
+arr.size();               // 大小（编译期常量）
+arr.fill(99);             // 全部填充为 99
+
+// 作为函数参数不会退化为指针！
+void print(array&lt;int, 5&gt; a) {
+    for (int x : a) cout &lt;&lt; x;
+}
+
+// 可直接比较
+array&lt;int, 3&gt; a1 = {1,2,3}, a2 = {1,2,4};
+if (a1 &lt; a2) ... // 按字典序比较</code></pre></div>
+<div class="callout info"><i class="fa-solid fa-circle-info"></i><span>array 最大的优势是<strong>不会退化为指针</strong>，可以安全地在函数间传递。竞赛中如果大小固定且已知，array 比 vector 更轻量（无堆分配）。</span></div>
+`,
+
+// ========== tuple ==========
+'tuple':`
+<h1>12. tuple — 多元组</h1>
+<p>tuple 是 pair 的泛化版本，可存储<strong>任意数量和任意类型</strong>的元素。对于超过两个返回值的场景非常实用。</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;tuple&gt;
+using namespace std;
+
+tuple&lt;int, string, double&gt; t = {1, "pi", 3.14};
+auto t2 = make_tuple(2, "e", 2.718);
+
+get&lt;0&gt;(t);  // → 1（按位置访问）
+get&lt;1&gt;(t);  // → "pi"
+get&lt;2&gt;(t);  // → 3.14
+
+// C++17 结构化绑定
+auto [num, name, val] = t;
+
+// 比较：按字典序逐元素比较
+
+// 多返回值示例
+tuple&lt;int,int,int&gt; threeVals = {1, 2, 3};</code></pre></div>
+<div class="callout info"><i class="fa-solid fa-circle-info"></i><span>在 C++17 之后，搭配结构化绑定，tuple 的使用体验大幅提升。竞赛中常见于需要返回多个不同含义值的函数。</span></div>
+`,
+
+};  /* end CONTENTS */
+
+// ==================== 展开状态管理 ====================
+let expandedState;
+function loadExpandedState() {
+  try { expandedState = new Set(JSON.parse(localStorage.getItem('cxx_tree_expanded') || '[]')); }
+  catch { expandedState = new Set(); }
+}
+function saveExpandedState() {
+  localStorage.setItem('cxx_tree_expanded', JSON.stringify([...expandedState]));
+}
+
+// ==================== 渲染目录树（默认折叠） ====================
+function renderTree() {
+  const wrap = document.getElementById('treeScroll');
+  loadExpandedState();
+
+  function walk(nodes, depth) {
+    return nodes.map((node, i) => {
+      const isLast = i === nodes.length - 1;
+      const hasKids = node.children && node.children.length > 0;
+      const isExpanded = expandedState.has(node.id);
+      const header = node.header || '';
+
+      // 缩进线
+      let indentHtml = '';
+      if (depth > 0) {
+        indentHtml = '<span class="tree-indent">' + '│&nbsp;'.repeat(depth - 1) + (isLast ? '└─' : '├─') + '</span>';
+      }
+
+      // 箭头图标
+      let arrowHtml = '';
+      if (hasKids) {
+        arrowHtml = `<span class="tree-arrow${isExpanded ? ' expanded' : ''}" data-toggle="${node.id}">${isExpanded ? '▼' : '▶'}</span>`;
+      } else {
+        arrowHtml = `<span class="tree-arrow leaf">${depth === 0 ? '●' : ''}</span>`;
+      }
+
+      return `<div class="tree-node" data-id="${node.id}">
+        <a class="tree-link" data-id="${node.id}" data-header="${escapeHtml(header)}" data-has-children="${hasKids}" href="javascript:void(0)" onclick="handleTreeClick('${node.id}',${hasKids})">
+          ${indentHtml}${arrowHtml}<span class="tree-label">${node.num ? node.num + ' ' : ''}${escapeHtml(node.title)}</span>
+        </a>
+        ${hasKids ? `<div class="tree-children${isExpanded ? ' expanded' : ''}"${isExpanded ? '' : ' style="display:none"'}>${walk(node.children, depth + 1)}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  wrap.innerHTML = walk(TREE, 0);
+
+  // 绑定箭头点击（仅展开/收起，不跳转）
+  wrap.querySelectorAll('.tree-arrow:not(.leaf)').forEach(function(arrow) {
+    arrow.addEventListener('click', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      toggleTreeNode(this.dataset.toggle);
+    });
+  });
+}
+
+// 全局：点击目录文字 → 展开/收起 + 跳转章节
+function handleTreeClick(id, hasKids) {
+  if (hasKids) toggleTreeNode(id);
+  showChapter(id);
+}
+
+// ==================== 展开/收起节点 ====================
+function toggleTreeNode(id) {
+  const node = document.querySelector(`.tree-node[data-id="${id}"]`);
+  if (!node) return;
+  const children = node.querySelector(':scope > .tree-children');
+  if (!children) return;
+  const arrow = node.querySelector(':scope > .tree-link .tree-arrow');
+
+  const isOpen = expandedState.has(id);
+  if (isOpen) {
+    expandedState.delete(id);
+    children.style.display = 'none';
+    children.classList.remove('expanded');
+    if (arrow) { arrow.textContent = '▶'; arrow.classList.remove('expanded'); }
+  } else {
+    expandedState.add(id);
+    children.style.display = '';
+    children.classList.add('expanded');
+    if (arrow) { arrow.textContent = '▼'; arrow.classList.add('expanded'); }
+  }
+  saveExpandedState();
+}
+
+// ==================== 展开所有祖先节点 ====================
+function expandAncestors(id) {
+  // 从 TREE 中查找该 id 的父级链
+  function findPath(nodes, targetId, path) {
+    for (const node of nodes) {
+      if (node.id === targetId) { path.push(node.id); return true; }
+      if (node.children && findPath(node.children, targetId, path)) {
+        path.push(node.id);
+        return true;
+      }
+    }
+    return false;
+  }
+  const path = [];
+  findPath(TREE, id, path);
+  // path 从叶子到根，去掉最后一个（自身），展开所有父级
+  path.slice(1).forEach(pid => {
+    if (!expandedState.has(pid)) {
+      expandedState.add(pid);
+      const node = document.querySelector(`.tree-node[data-id="${pid}"]`);
+      if (node) {
+        const children = node.querySelector(':scope > .tree-children');
+        if (children) { children.style.display = ''; children.classList.add('expanded'); }
+        const arrow = node.querySelector(':scope > .tree-link .tree-arrow');
+        if (arrow) { arrow.textContent = '▼'; arrow.classList.add('expanded'); }
+      }
+    }
+  });
+  saveExpandedState();
+}
+
+// ==================== 渲染正文（整章 + 全部子节，可滚动） ====================
+let currentRootId = null;
+let currentChapterId = null;
+
+// 在树中查找节点对象
+function findNode(nodes, id) {
+  for (const node of nodes) {
+    if (node.id === id) return node;
+    if (node.children) { const f = findNode(node.children, id); if (f) return f; }
+  }
+  return null;
+}
+
+// 递归渲染节点及其子节点
+function renderNodeWithChildren(node) {
+  var h = '<div id="'+node.id+'" class="section-anchor">';
+  if (CONTENTS[node.id]) { h += CONTENTS[node.id]; }
+  else { h += '<h2>'+(node.num||'')+' '+escapeHtml(node.title)+'</h2>'; }
+  h += '<hr></div>';
+  if (node.children) { for (var i=0;i<node.children.length;i++) h+=renderNodeWithChildren(node.children[i]); }
+  return h;
+}
+
+// 滚动到指定锚点
+function scrollToAnchor(id) {
+  const contentEl = document.getElementById('content');
+  const el = document.getElementById(id);
+  if (el) {
+    const top = el.offsetTop - 24;
+    contentEl.scrollTo({ top, behavior: 'smooth' });
+  }
+}
+
+// ==================== 导航：显示章节 ====================
+function showChapter(id) {
+  var node = findNode(TREE, id);
+  if (!node) return;
+  var wrap = document.getElementById('contentInner');
+  var html = renderNodeWithChildren(node);
+  wrap.innerHTML = html;
+  if (typeof hljs !== 'undefined') {
+    wrap.querySelectorAll('pre code').forEach(function(b) { hljs.highlightElement(b); });
+  }
+  setupScrollSpy();
+  currentChapterId = id;
+  updateActiveLink(id);
+  updateHeaderHint(id);
+  expandAncestors(id);
+  closeMobileSidebar();
+  history.replaceState(null, '', '#' + id);
+  document.getElementById('content').scrollTop = 0;
+}
+
+function updateActiveLink(id) {
+  document.querySelectorAll('.tree-link').forEach(link => {
+    link.classList.toggle('active', link.dataset.id === id);
+  });
+}
+
+function updateHeaderHint(id) {
+  const link = document.querySelector(`.tree-link[data-id="${id}"]`);
+  const header = link ? link.dataset.header : '';
+  const hint = document.getElementById('headerHint');
+  if (header) hint.textContent = header;
+}
+
+// ==================== 滚动联动高亮 ====================
+let chapterObserver;
+function setupScrollSpy() {
+  if (chapterObserver) chapterObserver.disconnect();
+
+  const contentEl = document.getElementById('content');
+  const anchors = document.querySelectorAll('#contentInner .section-anchor');
+  if (!anchors.length) return;
+
+  chapterObserver = new IntersectionObserver((entries) => {
+    let topEntry = null, minTop = Infinity;
+    entries.forEach(e => {
+      if (e.isIntersecting && e.boundingClientRect.top < minTop) {
+        minTop = e.boundingClientRect.top;
+        topEntry = e;
+      }
+    });
+    if (topEntry && currentChapterId !== topEntry.target.id) {
+      currentChapterId = topEntry.target.id;
+      updateActiveLink(currentChapterId);
+      updateHeaderHint(currentChapterId);
+    }
+  }, { root: contentEl, rootMargin: '-20px 0px -70% 0px', threshold: 0 });
+
+  anchors.forEach(el => chapterObserver.observe(el));
+}
+
+// ==================== 阅读进度条 ====================
+function setupProgressBar() {
+  const contentEl = document.getElementById('content');
+  const bar = document.getElementById('progressBar');
+
+  contentEl.addEventListener('scroll', () => {
+    const scrollTop = contentEl.scrollTop;
+    const scrollHeight = contentEl.scrollHeight - contentEl.clientHeight;
+    if (scrollHeight > 0) {
+      bar.style.width = (scrollTop / scrollHeight * 100) + '%';
+    }
+  });
+}
+
+// ==================== 搜索 ====================
+const searchInput = document.getElementById('searchInput');
+const searchResults = document.getElementById('searchResults');
+
+searchInput.addEventListener('input', debounce(function() {
+  const q = this.value.trim().toLowerCase();
+  if (!q) { searchResults.style.display = 'none'; searchResults.innerHTML = ''; return; }
+
+  // 在目录和内容中搜索
+  const matches = [];
+  const seen = new Set();
+
+  function searchNodes(nodes) {
+    nodes.forEach(node => {
+      const title = (node.num || '') + ' ' + node.title;
+      const contentText = (CONTENTS[node.id] || '').replace(/<[^>]*>/g, ' ');
+      const fullText = (title + ' ' + contentText).toLowerCase();
+
+      if (fullText.includes(q) && !seen.has(node.id)) {
+        seen.add(node.id);
+        const idx = fullText.indexOf(q);
+        const start = Math.max(0, idx - 30);
+        const end = Math.min(fullText.length, idx + q.length + 60);
+        const excerpt = '...' + fullText.slice(start, end) + '...';
+        matches.push({ id: node.id, title: title, excerpt: excerpt });
+      }
+      if (node.children) searchNodes(node.children);
+    });
+  }
+  searchNodes(TREE);
+
+  if (matches.length === 0) {
+    searchResults.innerHTML = '<div class="sr-empty">未找到匹配内容</div>';
+  } else {
+    const regex = new RegExp(`(${escapeRegex(q)})`, 'gi');
+    searchResults.innerHTML = matches.slice(0, 12).map(m =>
+      `<div class="sr-item" onclick="showChapter('${m.id}');searchInput.value='';searchResults.style.display='none';searchResults.innerHTML='';">
+        <strong>${m.title.replace(regex, '<mark>$1</mark>')}</strong><br>
+        <small>${m.excerpt.replace(regex, '<mark>$1</mark>')}</small>
+      </div>`
+    ).join('');
+  }
+  searchResults.style.display = 'block';
+}, 250));
+
+// 点击外部关闭搜索结果
+document.addEventListener('click', function(e) {
+  if (!e.target.closest('.sidebar-search')) {
+    searchResults.style.display = 'none';
+  }
+});
+
+// ==================== 代码复制 ====================
+function copyCode(btn) {
+  const codeBlock = btn.closest('.code-block').querySelector('pre code');
+  const code = codeBlock ? codeBlock.textContent : '';
+  navigator.clipboard.writeText(code).then(() => {
+    btn.classList.add('done');
+    btn.innerHTML = '<i class="fa-solid fa-check"></i>';
+    showToast('✅ 已复制');
+    setTimeout(() => { btn.classList.remove('done'); btn.innerHTML = '<i class="fa-regular fa-copy"></i>'; }, 1800);
+  }).catch(() => showToast('复制失败'));
+}
+
+// ==================== 主题切换 ====================
+function initTheme() {
+  const saved = localStorage.getItem('cxx_theme2') || 'light';
+  document.body.setAttribute('data-theme', saved);
+  updateThemeIcon(saved);
+}
+function updateThemeIcon(theme) {
+  document.getElementById('themeBtn').innerHTML = theme === 'dark'
+    ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+}
+document.getElementById('themeBtn').addEventListener('click', () => {
+  const cur = document.body.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.body.setAttribute('data-theme', next);
+  localStorage.setItem('cxx_theme2', next);
+  updateThemeIcon(next);
+});
+
+// ==================== Toast ====================
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// ==================== 移动端侧边栏 ====================
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebarOverlay');
+document.getElementById('hamburger').addEventListener('click', () => {
+  sidebar.classList.add('mobile-open');
+  overlay.classList.add('show');
+});
+overlay.addEventListener('click', closeMobileSidebar);
+function closeMobileSidebar() {
+  sidebar.classList.remove('mobile-open');
+  overlay.classList.remove('show');
+}
+
+// ==================== 工具函数 ====================
+function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
+
+// ==================== 启动 ====================
+function init() {
+  initTheme();
+  renderTree();
+  setupProgressBar();
+
+  // 初始显示：hash 指定章节或默认 vector
+  const hash = window.location.hash.replace('#', '');
+  const startId = hash || 'vec';
+  showChapter(startId);
+}
+
+init();
+</script>
+</body>
+</html>
