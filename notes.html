@@ -99,6 +99,8 @@ body{
 }
 .filter-btn:hover{border-color:var(--accent);color:var(--accent);}
 .filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+.filter-btn.pressing{transform:scale(0.92);box-shadow:0 0 0 3px var(--accent-light),0 0 16px rgba(91,110,140,0.4),0 4px 16px rgba(0,0,0,0.15);transition:none;}
+.filter-btn[draggable]{cursor:grab;}
 
 .theme-toggle{
   width:38px;height:38px;border-radius:50%;border:1px solid var(--border);
@@ -663,15 +665,161 @@ document.getElementById('searchInput').addEventListener('input', debounce(functi
   renderAll();
 }, 200));
 
-// 语言筛选按钮
-document.querySelectorAll('.filter-btn').forEach(btn => {
-  btn.addEventListener('click', function() {
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-    this.classList.add('active');
-    currentLang = this.dataset.lang;
-    renderAll();
+// 语言筛选按钮 — 短按筛选 / 长按拖拽排序
+(function(){
+  var container = document.querySelector('.nav-actions');
+  var LONG_PRESS = 400;
+  var dragBtn = null, ghost = null, pressTimer = null;
+  var startX = 0, startY = 0, offsetX = 0, offsetY = 0;
+  var isDragging = false, isLongPress = false;
+
+  function getDraggableBtns() {
+    return Array.from(container.querySelectorAll('.filter-btn[data-lang="python"], .filter-btn[data-lang="javascript"], .filter-btn[data-lang="cpp"]'));
+  }
+
+  function startDrag(btn, pos) {
+    isDragging = true;
+    btn.classList.add('pressing');
+    btn.style.position = 'fixed';
+    btn.style.zIndex = '999';
+    btn.style.pointerEvents = 'none';
+    btn.style.left = (pos.clientX - offsetX) + 'px';
+    btn.style.top = (pos.clientY - offsetY) + 'px';
+    btn.style.width = btn.offsetWidth + 'px';
+    btn.style.transition = 'none';
+
+    ghost = document.createElement('span');
+    ghost.className = 'filter-btn';
+    ghost.style.cssText = 'visibility:hidden;pointer-events:none;';
+    ghost.style.width = btn.offsetWidth + 'px';
+    ghost.dataset.lang = btn.dataset.lang;
+    ghost.textContent = btn.textContent;
+    container.insertBefore(ghost, btn);
+  }
+
+  function updateDropPosition(pos) {
+    if (!ghost) return;
+    var btns = getDraggableBtns();
+    var allBtn = container.querySelector('.filter-btn[data-lang="all"]');
+
+    btns.forEach(function(b){
+      if (b === dragBtn || b === ghost) return;
+      var r = b.getBoundingClientRect();
+      var mid = r.left + r.width / 2;
+      // 在按钮左半边 → 插到它前面；右半边 → 插到它后面
+      if (pos.clientX > r.left && pos.clientX < r.right) {
+        if (pos.clientX < mid && ghost.nextSibling !== b) {
+          container.insertBefore(ghost, b);
+        } else if (pos.clientX >= mid && ghost.previousSibling !== b) {
+          container.insertBefore(ghost, b.nextSibling);
+        }
+      }
+    });
+
+    // 拖到"全部"左边
+    if (allBtn && ghost !== allBtn) {
+      var rAll = allBtn.getBoundingClientRect();
+      if (pos.clientX < rAll.left + rAll.width/2) {
+        container.insertBefore(ghost, allBtn.nextSibling);
+      }
+    }
+  }
+
+  function endDrag(btn) {
+    clearTimeout(pressTimer);
+    pressTimer = null;
+
+    if (isDragging && ghost) {
+      container.insertBefore(btn, ghost);
+      container.removeChild(ghost);
+      ghost = null;
+    }
+
+    if (btn) {
+      btn.classList.remove('pressing');
+      btn.style.position = ''; btn.style.zIndex = ''; btn.style.pointerEvents = '';
+      btn.style.left = ''; btn.style.top = ''; btn.style.width = ''; btn.style.transition = '';
+    }
+
+    isDragging = false;
+    isLongPress = false;
+    dragBtn = null;
+  }
+
+  function onDown(btn, e) {
+    var lang = btn.dataset.lang;
+    if (lang === 'all') return;
+    e.preventDefault();
+
+    var pos = (e.touches && e.touches[0]) ? e.touches[0] : e;
+    var rect = btn.getBoundingClientRect();
+    offsetX = pos.clientX - rect.left;
+    offsetY = pos.clientY - rect.top;
+    startX = pos.clientX;
+    startY = pos.clientY;
+    isLongPress = false;
+    isDragging = false;
+    dragBtn = btn;
+
+    // 长按 400ms 后进入拖拽模式
+    pressTimer = setTimeout(function(){
+      isLongPress = true;
+      startDrag(btn, pos);
+    }, LONG_PRESS);
+  }
+
+  function onMove(e) {
+    if (!dragBtn) return;
+    var pos = (e.touches && e.touches[0]) ? e.touches[0] : e;
+
+    if (!isDragging) {
+      // 还没进入拖拽，检测是否移动了（取消长按）
+      if (Math.abs(pos.clientX - startX) > 8 || Math.abs(pos.clientY - startY) > 8) {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+      }
+      return;
+    }
+
+    dragBtn.style.left = (pos.clientX - offsetX) + 'px';
+    dragBtn.style.top = (pos.clientY - offsetY) + 'px';
+    updateDropPosition(pos);
+  }
+
+  function onUp(e) {
+    if (!dragBtn) return;
+    var btn = dragBtn;
+
+    if (!isLongPress && !isDragging) {
+      // 短点击
+      clearTimeout(pressTimer);
+      pressTimer = null;
+      dragBtn = null;
+
+      if (btn.dataset.lang === 'cpp') {
+        window.location.href = 'cxx-notes.html';
+        return;
+      }
+      document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+      currentLang = btn.dataset.lang;
+      renderAll();
+      return;
+    }
+
+    endDrag(btn);
+  }
+
+  getDraggableBtns().forEach(function(btn){
+    btn.addEventListener('mousedown', function(e){ onDown(this, e); });
+    btn.addEventListener('touchstart', function(e){ onDown(this, e); }, {passive:false});
   });
-});
+
+  document.addEventListener('mousemove', function(e){ onMove(e); });
+  document.addEventListener('touchmove', function(e){ onMove(e); }, {passive:false});
+  document.addEventListener('mouseup', function(e){ onUp(e); });
+  document.addEventListener('touchend', function(e){ onUp(e); });
+})();
 
 // 主题切换
 document.getElementById('themeToggle').addEventListener('click', toggleTheme);

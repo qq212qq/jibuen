@@ -420,7 +420,12 @@ const TREE = [
           { id:'vec-1-3', num:'1.1.3', title:'方法函数', parent:'vec-1', header:'#include <vector>' }
       ]},
       { id:'vec-2',   num:'1.2', title:'深入探索', parent:'vec', header:'#include <vector>' },
-      { id:'vec-3',   num:'1.3', title:'元素访问', parent:'vec', header:'#include <vector>' }
+      { id:'vec-3',   num:'1.3', title:'元素访问', parent:'vec', header:'#include <vector>' },
+      { id:'vec-4',   num:'1.4', title:'输入与输出', parent:'vec', header:'#include <vector>',
+        children:[
+          { id:'vec-4-1', num:'1.4.1', title:'向 vector 输入数据', parent:'vec-4', header:'#include <vector>' },
+          { id:'vec-4-2', num:'1.4.2', title:'从 vector 输出数据', parent:'vec-4', header:'#include <vector>' }
+      ]}
   ]},
   { id:'stack',    num:'2.',  title:'stack',            header:'#include <stack>',
     children:[
@@ -481,6 +486,12 @@ const TREE = [
     children:[
       { id:'tuple-1', num:'12.1', title:'基本操作', parent:'tuple', header:'#include <tuple>' },
       { id:'tuple-2', num:'12.2', title:'结构化绑定', parent:'tuple', header:'#include <tuple>' }
+  ]},
+  { id:'io',       num:'附录', title:'基础输入输出',     header:'#include <iostream>',
+    children:[
+      { id:'io-1', num:'', title:'标准输出 cout', parent:'io', header:'#include <iostream>' },
+      { id:'io-2', num:'', title:'标准输入 cin',  parent:'io', header:'#include <iostream>' },
+      { id:'io-3', num:'', title:'格式化输出',    parent:'io', header:'#include <iomanip>' }
   ]}
 ];
 
@@ -626,6 +637,167 @@ v.back()    // → 50（最后一个元素）
 int *p = v.data();
 cout &lt;&lt; p[3];  // → 40</code></pre></div>
 <div class="callout warn"><i class="fa-solid fa-triangle-exclamation"></i><span>竞赛中优先使用 <code>[]</code>（速度快、无开销），调试阶段可用 <code>.at()</code> 帮助定位数组越界问题。但 <code>.at()</code> 有额外分支判断，卡常数时不推荐。</span></div>
+`,
+
+'vec-4':`
+<h2>1.4 输入与输出</h2>
+<p>vector 的输入输出是竞赛中最基础的操作——先读入数据存入 vector，处理后再输出结果。</p>
+<div class="callout info"><i class="fa-solid fa-circle-info"></i><span>读入 vector 前一般先读取元素个数 <code>n</code>，再循环读入。如果不知道 <code>n</code>，可以用 <code>while(cin&gt;&gt;x)</code> 读到文件末尾。</span></div>
+`,
+
+'vec-4-1':`
+<h2>1.4.1 向 vector 输入数据</h2>
+<p>竞赛中三种常用方式：</p>
+
+<h3>方式一：已知数量 n，先 resize 再下标赋值</h3>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">int n;
+cin &gt;&gt; n;
+vector&lt;int&gt; v(n);        // 先开好 n 个空间
+for (int i = 0; i &lt; n; i++)
+    cin &gt;&gt; v[i];          // 直接下标赋值，最高效</code></pre></div>
+
+<h3>方式二：push_back 逐个追加</h3>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">int n, x;
+cin &gt;&gt; n;
+vector&lt;int&gt; v;
+for (int i = 0; i &lt; n; i++) {
+    cin &gt;&gt; x;
+    v.push_back(x);      // 尾部追加
+}</code></pre></div>
+
+<h3>方式三：未知数量，读到 EOF</h3>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">vector&lt;int&gt; v;
+int x;
+while (cin &gt;&gt; x)         // 读到文件末尾自动结束
+    v.push_back(x);</code></pre></div>
+<div class="callout warn"><i class="fa-solid fa-triangle-exclamation"></i><span><strong>推荐方式一：</strong>先 <code>resize(n)</code> 再下标赋值最快、代码也最清晰。方式二每次 <code>push_back</code> 可能触发扩容拷贝，速度稍慢。</span></div>
+`,
+
+'vec-4-2':`
+<h2>1.4.2 从 vector 输出数据</h2>
+
+<h3>方式一：传统 for + 下标</h3>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">// 空格分隔
+for (int i = 0; i &lt; v.size(); i++)
+    cout &lt;&lt; v[i] &lt;&lt; " ";
+
+// 每个元素换行
+for (int i = 0; i &lt; v.size(); i++)
+    cout &lt;&lt; v[i] &lt;&lt; '\\n';</code></pre></div>
+
+<h3>方式二：范围 for（C++11，推荐）</h3>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">for (int x : v)
+    cout &lt;&lt; x &lt;&lt; " ";
+
+// 配合 auto 更通用
+for (auto x : v)
+    cout &lt;&lt; x &lt;&lt; " ";</code></pre></div>
+
+<h3>方式三：迭代器</h3>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">for (auto it = v.begin(); it != v.end(); ++it)
+    cout &lt;&lt; *it &lt;&lt; " ";</code></pre></div>
+
+<div class="callout info"><i class="fa-solid fa-lightbulb"></i><span>竞赛中最常用的是<strong>方式一</strong>（需要索引时）和<strong>方式二</strong>（不需要索引时）。范围 for 语法最简洁，优先推荐。</span></div>
+`,
+
+'io':`
+<h1>附录：基础输入输出</h1>
+<p>C++ 使用<strong>流（stream）</strong>进行输入输出。数据像水流一样从键盘流入程序（<code>cin</code>），从程序流向屏幕（<code>cout</code>）。</p>
+<p>竞赛中最常用的三个头文件：<code>&lt;iostream&gt;</code>（输入输出流）、<code>&lt;iomanip&gt;</code>（格式控制）、<code>&lt;cstdio&gt;</code>（C 风格 scanf/printf，速度更快）。</p>
+<div class="callout info"><i class="fa-solid fa-circle-info"></i><span>在数据量极大时（如 10^6 级别），<code>scanf/printf</code> 比 <code>cin/cout</code> 快。但加上 <code>ios::sync_with_stdio(false)</code> 后，<code>cin/cout</code> 的速度可以接近 <code>scanf/printf</code>。</span></div>
+`,
+
+'io-1':`
+<h2>标准输出 cout</h2>
+<p><code>cout</code>（character output）将数据输出到标准输出流（屏幕）。使用 <code>&lt;&lt;</code>（流插入运算符）拼接输出内容。</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++ — cout 基本用法</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    int a = 10;
+    double b = 3.14;
+    string s = "hello";
+
+    cout &lt;&lt; a;                    // 输出整数 → 10
+    cout &lt;&lt; a &lt;&lt; " " &lt;&lt; b;        // 拼接输出 → "10 3.14"
+    cout &lt;&lt; s &lt;&lt; endl;            // 输出字符串并换行 → "hello"\\n
+
+    // endl vs \\n
+    cout &lt;&lt; "line1" &lt;&lt; endl;      // 换行 + 刷新缓冲区（慢）
+    cout &lt;&lt; "line2" &lt;&lt; '\\n';      // 仅换行（快，竞赛推荐）
+    return 0;
+}</code></pre></div>
+<div class="callout warn"><i class="fa-solid fa-triangle-exclamation"></i><span><code>endl</code> 除了换行还会<strong>刷新缓冲区</strong>（flush），频繁使用会拖慢程序。竞赛中用 <code>'\\n'</code> 更高效，只在需要立即显示输出时才用 <code>endl</code>。</span></div>
+`,
+
+'io-2':`
+<h2>标准输入 cin</h2>
+<p><code>cin</code>（character input）从标准输入流（键盘）读取数据。使用 <code>&gt;&gt;</code>（流提取运算符）按空格/换行分隔读取。</p>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++ — cin 基本用法</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;iostream&gt;
+using namespace std;
+
+int main() {
+    // 单个输入
+    int n;
+    cin &gt;&gt; n;                    // 输入一个整数
+
+    // 连续输入（空格或换行分隔）
+    int a, b;
+    cin &gt;&gt; a &gt;&gt; b;               // 输入 "10 20" → a=10, b=20
+
+    // 读取一行字符串（含空格）
+    string line;
+    getline(cin, line);           // 读取整行
+
+    // 循环读入（竞赛标配）
+    vector&lt;int&gt; v;
+    int x;
+    while (cin &gt;&gt; x) {           // 读到文件末尾自动结束
+        v.push_back(x);
+    }
+    return 0;
+}</code></pre></div>
+<div class="callout info"><i class="fa-solid fa-lightbulb"></i><span>竞赛中读入 <code>vector</code> 的常用模式：<code>int n; cin &gt;&gt; n; vector&lt;int&gt; v(n); for(auto &x:v) cin &gt;&gt; x;</code></span></div>
+
+<h3>加速 cin/cout</h3>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++ — 关闭同步加速</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">ios::sync_with_stdio(false);  // 关闭与 C 标准流的同步
+cin.tie(nullptr);             // 解除 cin 和 cout 的绑定
+// 这两行写在 main 函数最开头，可大幅提升 cin/cout 速度</code></pre></div>
+<div class="callout warn"><i class="fa-solid fa-triangle-exclamation"></i><span>加速后<strong>不能混用</strong> <code>cin/cout</code> 和 <code>scanf/printf</code>，否则输出顺序会乱！选一套用到底。</span></div>
+`,
+
+'io-3':`
+<h2>格式化输出</h2>
+<p>控制输出精度、宽度、对齐方式。推荐两种方式：<code>printf</code>（C 风格）和 <code>cout + iomanip</code>（C++ 风格）。</p>
+
+<h3>方式一：printf（C 风格，精准控制）</h3>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++ — printf 格式化</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;cstdio&gt;
+
+int a = 42;
+double pi = 3.1415926;
+char s[] = "hello";
+
+printf("%d\\n", a);              // 整数 → "42"
+printf("%f\\n", pi);             // 浮点 → "3.141593"（默认6位）
+printf("%.2f\\n", pi);           // 保留2位小数 → "3.14"
+printf("%10d\\n", a);            // 占10格右对齐 → "        42"
+printf("%-10d\\n", a);           // 占10格左对齐 → "42        "
+printf("%s\\n", s);              // 字符串 → "hello"</code></pre></div>
+
+<h3>方式二：cout + iomanip（C++ 风格）</h3>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++ — iomanip 格式化</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;iomanip&gt;
+
+double pi = 3.1415926;
+
+cout &lt;&lt; fixed &lt;&lt; setprecision(2);  // 固定小数点，保留2位
+cout &lt;&lt; pi;                        // → "3.14"
+
+cout &lt;&lt; setw(10) &lt;&lt; 42;            // 占10格右对齐
+cout &lt;&lt; left &lt;&lt; setw(10) &lt;&lt; 42;    // 占10格左对齐
+cout &lt;&lt; setfill('0') &lt;&lt; setw(5) &lt;&lt; 7; // 填充0 → "00007"</code></pre></div>
+
+<div class="callout info"><i class="fa-solid fa-lightbulb"></i><span><strong>竞赛建议：</strong>需要精确控制格式时优先用 <code>printf</code>，简单又直观；日常输出用 <code>cout</code> 更安全（类型自动匹配）。</span></div>
 `,
 
 // ========== stack ==========
