@@ -56,22 +56,6 @@ body{
   transition:all var(--transition);z-index:100;
 }
 
-/* 搜索框 */
-.sidebar-search{
-  padding:14px 16px 10px;flex-shrink:0;
-}
-.sidebar-search .search-wrap{position:relative;}
-.sidebar-search input{
-  width:100%;padding:9px 12px 9px 34px;border-radius:8px;
-  border:1px solid var(--search-border);background:var(--search-bg);
-  font-size:13px;color:var(--content-text);outline:none;font-family:inherit;
-  transition:all 0.2s;
-}
-.sidebar-search input:focus{border-color:var(--sidebar-active-text);box-shadow:0 0 0 3px rgba(9,105,218,0.1);}
-.sidebar-search .s-icon{
-  position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--content-muted);font-size:13px;pointer-events:none;
-}
-
 /* 目录标题行 */
 .sidebar-title{
   padding:6px 18px 8px;font-size:12px;font-weight:600;color:var(--content-muted);
@@ -184,18 +168,12 @@ body{
 .content-inner{position:relative;z-index:2;}
 .reading-progress{z-index:51;}
 
-/* 文字可读性 */
-.content-inner h1,.content-inner h2,.content-inner h3{
-  text-shadow:0 2px 14px rgba(0,0,0,0.70);
-}
-.content-inner p,.content-inner li{
-  text-shadow:0 1px 8px rgba(0,0,0,0.55);
-}
-
-/* 代码块浮起 */
-.code-block{
-  box-shadow:0 4px 20px rgba(0,0,0,0.35),0 1px 3px rgba(0,0,0,0.2);
-}
+/* 暗色模式文字可读性 */
+.content-inner h1{color:#f0f3f6;}
+.content-inner h2,.content-inner h3{color:#e2e7ed;}
+.content-inner p,.content-inner li{color:#b8c0cc;}
+.content-inner code{color:#8db8f0;background:rgba(138,180,248,0.08);}
+.content-inner hr{border-color:rgba(255,255,255,0.06);}
 
 /* ===== 动画关键帧 ===== */
 @keyframes nebula-rotate{
@@ -223,18 +201,15 @@ body{
     linear-gradient(180deg, #2a3b6b 0%, #4a6fa5 40%, #3b2e5e 70%, #1a1c3b 100%);
 }
 [data-theme="light"] .content-inner{
-  background:rgba(255,255,255,0.88);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
-  border:1px solid rgba(0,0,0,0.06);box-shadow:0 2px 16px rgba(0,0,0,0.04);
+  background:rgba(255,255,255,0.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid rgba(0,0,0,0.06);border-radius:var(--radius-lg);
+  box-shadow:0 0 0 1px rgba(0,0,0,0.02),0 4px 24px rgba(0,0,0,0.05),0 1px 3px rgba(0,0,0,0.03);
 }
 [data-theme="light"] .content-inner h1,
 [data-theme="light"] .content-inner h2,
-[data-theme="light"] .content-inner h3{
-  text-shadow:0 2px 14px rgba(255,255,255,0.4);
-}
+[data-theme="light"] .content-inner h3{color:var(--content-text);}
 [data-theme="light"] .content-inner p,
-[data-theme="light"] .content-inner li{
-  text-shadow:0 1px 8px rgba(255,255,255,0.25);
-}
+[data-theme="light"] .content-inner li{color:var(--content-secondary);}
 .content::-webkit-scrollbar{width:6px}
 .content::-webkit-scrollbar-thumb{background:var(--divider);border-radius:3px}
 
@@ -250,9 +225,14 @@ body{
 /* 内容排版 */
 .content-inner{
   max-width:860px;margin:40px auto 60px;padding:48px 64px 80px;
-  background:rgba(13,17,23,0.85);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,0.06);border-radius:var(--radius-lg);
-  box-shadow:0 8px 40px rgba(0,0,0,0.4);
+  background:rgba(10,14,20,0.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.08);border-radius:var(--radius-lg);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03),
+    0 2px 0 0 rgba(255,255,255,0.02) inset,
+    0 8px 40px rgba(0,0,0,0.5),
+    0 2px 8px rgba(0,0,0,0.3);
+  transition:all var(--transition);
 }
 
 .content-inner h1{font-size:28px;font-weight:700;margin:52px 0 16px;color:var(--content-text);letter-spacing:-0.01em;line-height:1.25;}
@@ -271,7 +251,7 @@ body{
 .content-inner hr{border:none;height:1px;background:var(--divider);margin:40px 0;}
 
 /* 代码块 */
-.code-block{position:relative;margin:22px 0;border-radius:var(--radius-lg);overflow:hidden;border:1px solid rgba(255,255,255,0.06);box-shadow:0 1px 4px rgba(0,0,0,0.06);}
+.code-block{position:relative;margin:22px 0;border-radius:var(--radius-lg);overflow:hidden;border:1px solid rgba(255,255,255,0.1);box-shadow:0 4px 24px rgba(0,0,0,0.3),inset 0 1px 0 rgba(255,255,255,0.03);}
 .code-block .code-bar{
   display:flex;align-items:center;justify-content:space-between;
   padding:8px 16px;background:rgba(0,0,0,0.18);border-bottom:1px solid rgba(255,255,255,0.04);
@@ -295,7 +275,7 @@ body{
 
 /* 汉堡菜单按钮 */
 .hamburger{
-  display:none;position:fixed;top:12px;left:12px;z-index:300;
+  display:none;position:fixed;top:64px;left:12px;z-index:300;
   width:36px;height:36px;border-radius:8px;border:1px solid var(--sidebar-border);
   background:var(--sidebar-bg);color:var(--content-text);cursor:pointer;font-size:16px;
   align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.08);
@@ -310,32 +290,67 @@ body{
 }
 .toast.show{opacity:1;}
 
-/* 搜索覆盖层（移动端） */
-.search-results{
-  padding:4px 0;max-height:200px;overflow-y:auto;border-top:1px solid var(--sidebar-border);
+
+/* ========== 顶部导航栏 ========== */
+.top-nav-bar{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  height:56px;display:flex;align-items:center;justify-content:center;gap:0;
+  background:rgba(10,12,26,0.80);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  transition:all var(--transition);
 }
-.search-results .sr-item{
-  padding:5px 16px;font-size:12px;color:var(--sidebar-text);cursor:pointer;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+.top-nav-bar .nav-tab{
+  flex:1;max-width:180px;display:flex;align-items:center;justify-content:center;gap:8px;
+  text-decoration:none;color:rgba(255,255,255,0.45);font-size:13px;font-weight:500;
+  transition:all 0.25s cubic-bezier(0.34,1.56,0.64,1);position:relative;cursor:pointer;
+  -webkit-tap-highlight-color:transparent;padding:0 20px;height:100%;
 }
-.search-results .sr-item:hover{background:var(--sidebar-hover);}
-.search-results .sr-item mark{background:#ffe58f;color:#1a1a2e;border-radius:2px;padding:0 2px;}
-.search-results .sr-empty{padding:10px 16px;font-size:12px;color:var(--content-muted);}
+.top-nav-bar .nav-tab i{font-size:17px;transition:all 0.3s;}
+.top-nav-bar .nav-tab span{transition:all 0.3s;letter-spacing:0.02em;}
+.top-nav-bar .nav-tab:hover{color:rgba(255,255,255,0.7);}
+.top-nav-bar .nav-tab.active{
+  color:#f7c948;
+  text-shadow:0 0 16px rgba(247,201,72,0.4);
+}
+.top-nav-bar .nav-tab.active::after{
+  content:'';position:absolute;bottom:0;left:20%;right:20%;
+  height:2px;border-radius:2px;background:#f7c948;
+  box-shadow:0 0 8px rgba(247,201,72,0.5);
+}
+.top-nav-bar .nav-tab:active i{transform:scale(0.85);}
+
+/* 亮色模式 */
+[data-theme="light"] .top-nav-bar{
+  background:rgba(255,255,255,0.82);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(0,0,0,0.06);
+}
+[data-theme="light"] .top-nav-bar .nav-tab{color:rgba(0,0,0,0.4);}
+[data-theme="light"] .top-nav-bar .nav-tab:hover{color:rgba(0,0,0,0.65);}
+[data-theme="light"] .top-nav-bar .nav-tab.active{color:#b8860b;text-shadow:0 0 12px rgba(184,134,11,0.3);}
+[data-theme="light"] .top-nav-bar .nav-tab.active::after{background:#b8860b;box-shadow:0 0 8px rgba(184,134,11,0.4);}
+
+/* 顶部导航留出空间 */
+.main-wrap{padding-top:56px;}
 
 /* ========== 响应式 ========== */
 @media(max-width:768px){
-  .hamburger{display:flex;}
+  .hamburger{display:flex;top:56px;}
   .sidebar{
-    position:fixed;left:-310px;top:0;bottom:0;box-shadow:0 0 24px rgba(0,0,0,0.15);
+    position:fixed;left:-310px;top:56px;bottom:0;box-shadow:0 0 24px rgba(0,0,0,0.15);
     transition:left 0.3s;z-index:250;
   }
   .sidebar.mobile-open{left:0;}
   .sidebar-overlay{
-    display:none;position:fixed;inset:0;z-index:240;background:var(--overlay);
+    display:none;position:fixed;top:48px;left:0;right:0;bottom:0;z-index:240;background:var(--overlay);
   }
   .sidebar-overlay.show{display:block;}
+  .top-nav-bar{height:48px;}
+  .top-nav-bar .nav-tab{font-size:11px;}
+  .top-nav-bar .nav-tab i{font-size:15px;}
+  .main-wrap{padding-top:48px;}
+  .sidebar{top:48px;}
   .content-inner{padding:28px 18px 40px;margin:16px 8px 30px;}
-  .content::before,.content::after{left:0;}
+  .content::before,.content::after{left:0;top:48px;}
   .content-inner h1{font-size:22px;}
   .content-inner h2{font-size:18px;}
   .content-inner h3{font-size:16px;}
@@ -344,6 +359,18 @@ body{
 </style>
 </head>
 <body data-theme="light">
+
+<!-- ========== 顶部导航栏 ========== -->
+<nav class="top-nav-bar">
+  <a href="index.html" class="nav-tab">
+    <i class="fa-solid fa-house"></i>
+    <span>主页面</span>
+  </a>
+  <a href="notes.html" class="nav-tab active">
+    <i class="fa-solid fa-code"></i>
+    <span>代码笔记</span>
+  </a>
+</nav>
 
 <!-- 汉堡菜单（移动端） -->
 <button class="hamburger" id="hamburger" aria-label="目录"><i class="fa-solid fa-bars"></i></button>
@@ -356,14 +383,6 @@ body{
 
 <!-- ===== 左侧目录栏 ===== -->
 <aside class="sidebar" id="sidebar">
-  <!-- 搜索 -->
-  <div class="sidebar-search">
-    <div class="search-wrap">
-      <i class="fa-solid fa-magnifying-glass s-icon"></i>
-      <input type="text" id="searchInput" placeholder="搜索标题或内容...">
-    </div>
-    <div class="search-results" id="searchResults" style="display:none;"></div>
-  </div>
 
   <!-- 目录标题 -->
   <div class="sidebar-title">
@@ -409,16 +428,60 @@ const TREE = [
       { id:'stack-2',   num:'2.2', title:'常见应用',   parent:'stack', header:'#include <stack>' },
       { id:'stack-3',   num:'2.3', title:'注意事项',   parent:'stack', header:'#include <stack>' }
   ]},
-  { id:'queue',    num:'3.',  title:'queue',            header:'#include <queue>' },
-  { id:'deque',    num:'4.',  title:'deque',            header:'#include <deque>' },
-  { id:'pq',       num:'5.',  title:'priority_queue',   header:'#include <queue>' },
-  { id:'map',      num:'6.',  title:'map',              header:'#include <map>' },
-  { id:'set',      num:'7.',  title:'set',              header:'#include <set>' },
-  { id:'pair',     num:'8.',  title:'pair',             header:'#include <utility>' },
-  { id:'string',   num:'9.',  title:'string',           header:'#include <string>' },
-  { id:'bitset',   num:'10.', title:'bitset',           header:'#include <bitset>' },
-  { id:'array',    num:'11.', title:'array',            header:'#include <array>' },
-  { id:'tuple',    num:'12.', title:'tuple',            header:'#include <tuple>' }
+  { id:'queue',    num:'3.',  title:'queue',            header:'#include <queue>',
+    children:[
+      { id:'queue-1', num:'3.1', title:'基本操作', parent:'queue', header:'#include <queue>' },
+      { id:'queue-2', num:'3.2', title:'常见应用', parent:'queue', header:'#include <queue>' }
+  ]},
+  { id:'deque',    num:'4.',  title:'deque',            header:'#include <deque>',
+    children:[
+      { id:'deque-1', num:'4.1', title:'基本操作', parent:'deque', header:'#include <deque>' },
+      { id:'deque-2', num:'4.2', title:'与vector对比', parent:'deque', header:'#include <deque>' }
+  ]},
+  { id:'pq',       num:'5.',  title:'priority_queue',   header:'#include <queue>',
+    children:[
+      { id:'pq-1', num:'5.1', title:'基本操作', parent:'pq', header:'#include <queue>' },
+      { id:'pq-2', num:'5.2', title:'小顶堆与自定义', parent:'pq', header:'#include <queue>' },
+      { id:'pq-3', num:'5.3', title:'常见应用', parent:'pq', header:'#include <queue>' }
+  ]},
+  { id:'map',      num:'6.',  title:'map',              header:'#include <map>',
+    children:[
+      { id:'map-1', num:'6.1', title:'基本操作', parent:'map', header:'#include <map>' },
+      { id:'map-2', num:'6.2', title:'遍历与查找', parent:'map', header:'#include <map>' },
+      { id:'map-3', num:'6.3', title:'注意事项', parent:'map', header:'#include <map>' }
+  ]},
+  { id:'set',      num:'7.',  title:'set',              header:'#include <set>',
+    children:[
+      { id:'set-1', num:'7.1', title:'基本操作', parent:'set', header:'#include <set>' },
+      { id:'set-2', num:'7.2', title:'multiset', parent:'set', header:'#include <set>' },
+      { id:'set-3', num:'7.3', title:'注意事项', parent:'set', header:'#include <set>' }
+  ]},
+  { id:'pair',     num:'8.',  title:'pair',             header:'#include <utility>',
+    children:[
+      { id:'pair-1', num:'8.1', title:'基本操作', parent:'pair', header:'#include <utility>' },
+      { id:'pair-2', num:'8.2', title:'常见用法', parent:'pair', header:'#include <utility>' }
+  ]},
+  { id:'string',   num:'9.',  title:'string',           header:'#include <string>',
+    children:[
+      { id:'string-1', num:'9.1', title:'基本操作', parent:'string', header:'#include <string>' },
+      { id:'string-2', num:'9.2', title:'常用方法', parent:'string', header:'#include <string>' },
+      { id:'string-3', num:'9.3', title:'数值转换', parent:'string', header:'#include <string>' }
+  ]},
+  { id:'bitset',   num:'10.', title:'bitset',           header:'#include <bitset>',
+    children:[
+      { id:'bitset-1', num:'10.1', title:'基本操作', parent:'bitset', header:'#include <bitset>' },
+      { id:'bitset-2', num:'10.2', title:'位运算', parent:'bitset', header:'#include <bitset>' }
+  ]},
+  { id:'array',    num:'11.', title:'array',            header:'#include <array>',
+    children:[
+      { id:'array-1', num:'11.1', title:'基本操作', parent:'array', header:'#include <array>' },
+      { id:'array-2', num:'11.2', title:'与C数组对比', parent:'array', header:'#include <array>' }
+  ]},
+  { id:'tuple',    num:'12.', title:'tuple',            header:'#include <tuple>',
+    children:[
+      { id:'tuple-1', num:'12.1', title:'基本操作', parent:'tuple', header:'#include <tuple>' },
+      { id:'tuple-2', num:'12.2', title:'结构化绑定', parent:'tuple', header:'#include <tuple>' }
+  ]}
 ];
 
 // ==================== 正文内容数据 ====================
@@ -665,21 +728,42 @@ while (!tmp.empty()) {
 // ========== queue ==========
 'queue':`
 <h1>3. queue — 队列</h1>
-<p>queue（队列）是一种<strong>先进先出（FIFO，First In First Out）</strong>的数据结构。底层通常由 deque 实现。</p>
+<p>queue（队列）是一种<strong>先进先出（FIFO，First In First Out）</strong>的数据结构。元素从队尾进入、从队首弹出，像排队一样——先到先服务。底层通常由 deque 实现。</p>
+<div class="callout info"><i class="fa-solid fa-circle-info"></i><span>队列是 BFS 的标配数据结构，竞赛中出现频率极高。优先用 <code>queue</code> 而非手写数组模拟，代码简洁且不易出错。</span></div>
+`,
+'queue-1':`
+<h2>3.1 基本操作</h2>
 <div class="code-block"><div class="code-bar"><span class="code-lang">C++</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">#include &lt;queue&gt;
 using namespace std;
 
 queue&lt;int&gt; q;
 
-q.push(1);       // 入队
-q.push(2);
-q.push(3);
-q.front();       // 取队首 → 1
+q.push(1);       // 入队 → [1]
+q.push(2);       // [1, 2]
+q.push(3);       // [1, 2, 3]
+q.front();       // 取队首 → 1（不弹出）
 q.back();        // 取队尾 → 3
-q.pop();         // 弹出队首
-q.size();        // 元素个数
-q.empty();       // 是否为空</code></pre></div>
-<div class="callout info"><i class="fa-solid fa-circle-info"></i><span>竞赛常见应用：<strong>BFS 广度优先搜索</strong>、消息队列、生产者-消费者模型。</span></div>
+q.pop();         // 弹出队首 → [2, 3]
+q.size();        // 元素个数 → 2
+q.empty();       // 是否为空 → false</code></pre></div>
+<div class="callout warn"><i class="fa-solid fa-triangle-exclamation"></i><span>queue 和 stack 一样没有 <code>clear()</code>，也不支持迭代器遍历。清空方法：<code>while(!q.empty()) q.pop();</code></span></div>
+`,
+'queue-2':`
+<h2>3.2 常见应用</h2>
+<h3>BFS 广度优先搜索</h3>
+<div class="code-block"><div class="code-bar"><span class="code-lang">C++ — BFS 模板</span><button class="copy-btn" onclick="copyCode(this)" title="复制"><i class="fa-regular fa-copy"></i></button></div><pre><code class="language-cpp">// 二叉树层序遍历
+void bfs(TreeNode* root) {
+    if (!root) return;
+    queue&lt;TreeNode*&gt; q;
+    q.push(root);
+    while (!q.empty()) {
+        auto node = q.front(); q.pop();
+        cout &lt;&lt; node-&gt;val &lt;&lt; " ";
+        if (node-&gt;left)  q.push(node-&gt;left);
+        if (node-&gt;right) q.push(node-&gt;right);
+    }
+}</code></pre></div>
+<div class="callout info"><i class="fa-solid fa-circle-info"></i><span>BFS 的关键：<strong>先入队的先处理</strong>，天然保证按层遍历。竞赛中常见于最短路径（无权图）、拓扑排序、扩散问题。</span></div>
 `,
 
 // ========== deque ==========
@@ -970,26 +1054,52 @@ function handleTreeClick(id, hasKids) {
 }
 
 // ==================== 展开/收起节点 ====================
-function toggleTreeNode(id) {
-  const node = document.querySelector(`.tree-node[data-id="${id}"]`);
-  if (!node) return;
-  const children = node.querySelector(':scope > .tree-children');
-  if (!children) return;
-  const arrow = node.querySelector(':scope > .tree-link .tree-arrow');
+// 获取所有顶层节点 id 列表
+function getTopLevelIds() {
+  return TREE.filter(function(n){return n.children&&n.children.length>0;}).map(function(n){return n.id;});
+}
 
-  const isOpen = expandedState.has(id);
+function toggleTreeNode(id) {
+  var node = document.querySelector('.tree-node[data-id="'+id+'"]');
+  if (!node) return;
+  var children = node.querySelector(':scope > .tree-children');
+  if (!children) return;
+  var arrow = node.querySelector(':scope > .tree-link .tree-arrow');
+  var topIds = getTopLevelIds();
+  var isTop = topIds.indexOf(id) !== -1;
+  var isOpen = expandedState.has(id);
+
   if (isOpen) {
+    // 收起当前节点
     expandedState.delete(id);
-    children.style.display = 'none';
-    children.classList.remove('expanded');
-    if (arrow) { arrow.textContent = '▶'; arrow.classList.remove('expanded'); }
+    collapseDOM(id);
   } else {
+    // 如果是顶层节点，先收起所有其他顶层
+    if (isTop) {
+      topIds.forEach(function(tid) {
+        if (tid !== id && expandedState.has(tid)) {
+          expandedState.delete(tid);
+          collapseDOM(tid);
+        }
+      });
+    }
+    // 展开当前节点
     expandedState.add(id);
     children.style.display = '';
     children.classList.add('expanded');
     if (arrow) { arrow.textContent = '▼'; arrow.classList.add('expanded'); }
   }
   saveExpandedState();
+}
+
+// 只操作 DOM 收起（不改变 expandedState，由调用方处理）
+function collapseDOM(id) {
+  var node = document.querySelector('.tree-node[data-id="'+id+'"]');
+  if (!node) return;
+  var children = node.querySelector(':scope > .tree-children');
+  if (children) { children.style.display = 'none'; children.classList.remove('expanded'); }
+  var arrow = node.querySelector(':scope > .tree-link .tree-arrow');
+  if (arrow) { arrow.textContent = '▶'; arrow.classList.remove('expanded'); }
 }
 
 // ==================== 展开所有祖先节点 ====================
@@ -1130,57 +1240,6 @@ function setupProgressBar() {
   });
 }
 
-// ==================== 搜索 ====================
-const searchInput = document.getElementById('searchInput');
-const searchResults = document.getElementById('searchResults');
-
-searchInput.addEventListener('input', debounce(function() {
-  const q = this.value.trim().toLowerCase();
-  if (!q) { searchResults.style.display = 'none'; searchResults.innerHTML = ''; return; }
-
-  // 在目录和内容中搜索
-  const matches = [];
-  const seen = new Set();
-
-  function searchNodes(nodes) {
-    nodes.forEach(node => {
-      const title = (node.num || '') + ' ' + node.title;
-      const contentText = (CONTENTS[node.id] || '').replace(/<[^>]*>/g, ' ');
-      const fullText = (title + ' ' + contentText).toLowerCase();
-
-      if (fullText.includes(q) && !seen.has(node.id)) {
-        seen.add(node.id);
-        const idx = fullText.indexOf(q);
-        const start = Math.max(0, idx - 30);
-        const end = Math.min(fullText.length, idx + q.length + 60);
-        const excerpt = '...' + fullText.slice(start, end) + '...';
-        matches.push({ id: node.id, title: title, excerpt: excerpt });
-      }
-      if (node.children) searchNodes(node.children);
-    });
-  }
-  searchNodes(TREE);
-
-  if (matches.length === 0) {
-    searchResults.innerHTML = '<div class="sr-empty">未找到匹配内容</div>';
-  } else {
-    const regex = new RegExp(`(${escapeRegex(q)})`, 'gi');
-    searchResults.innerHTML = matches.slice(0, 12).map(m =>
-      `<div class="sr-item" onclick="showChapter('${m.id}');searchInput.value='';searchResults.style.display='none';searchResults.innerHTML='';">
-        <strong>${m.title.replace(regex, '<mark>$1</mark>')}</strong><br>
-        <small>${m.excerpt.replace(regex, '<mark>$1</mark>')}</small>
-      </div>`
-    ).join('');
-  }
-  searchResults.style.display = 'block';
-}, 250));
-
-// 点击外部关闭搜索结果
-document.addEventListener('click', function(e) {
-  if (!e.target.closest('.sidebar-search')) {
-    searchResults.style.display = 'none';
-  }
-});
 
 // ==================== 代码复制 ====================
 function copyCode(btn) {
@@ -1236,8 +1295,6 @@ function closeMobileSidebar() {
 
 // ==================== 工具函数 ====================
 function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
-function escapeRegex(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
-function debounce(fn, ms) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; }
 
 // ==================== 启动 ====================
 function init() {
