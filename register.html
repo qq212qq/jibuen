@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>注册 — jibuen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  font-weight:500;font-size:18px;line-height:1.2;
+  background:#0A0A0B;color:#fff;
+  -webkit-font-smoothing:antialiased
+}
+
+.nav-login{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 25px
+}
+@media(max-width:768px){.nav-login{padding:16px 15px}}
+.nav-login-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff}
+.nav-login-logo svg{flex-shrink:0}
+.nav-login-logo span{font-size:20px;font-weight:600;letter-spacing:-0.02em}
+.nav-login-links{display:flex;align-items:center;gap:8px}
+.nav-login-links a{color:#999;text-decoration:none;font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:0.02em;padding:8px 14px;border-radius:6px;transition:color .2s}
+.nav-login-links a:hover{color:#fff}
+
+/* 注册区域 */
+.register-root{
+  min-height:100dvh;padding-top:75px;
+  display:flex;justify-content:center;align-items:center;
+  padding-left:25px;padding-right:25px;padding-bottom:25px
+}
+@media(max-width:768px){.register-root{padding-left:15px;padding-right:15px}}
+
+.register-content{
+  width:400px;max-width:100%;
+  display:flex;flex-direction:column;gap:25px;
+  text-align:center
+}
+
+.register-label{
+  font-size:11px;font-weight:500;text-transform:uppercase;
+  letter-spacing:0.04em;color:#999;
+  display:flex;align-items:center;gap:0;
+  margin:0 auto;position:relative;padding-left:16px
+}
+.register-label::before{
+  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:5px;height:5px;border-radius:50%;
+  background:#C9FE6E
+}
+
+.register-title{font-size:30px;font-weight:500;line-height:1.02;letter-spacing:-0.02em}
+
+/* 密码框 + 显示切换 */
+.pass-wrap{position:relative}
+.pass-wrap input{padding-right:55px!important}
+.toggle-pass{
+  position:absolute;right:0;top:0;height:100%;
+  aspect-ratio:1;display:grid;place-items:center;
+  background:none;border:none;cursor:pointer
+}
+.toggle-pass img{width:18px;height:auto}
+.toggle-pass .eye-on{display:none}
+.toggle-pass.show .eye-off{display:none}
+.toggle-pass.show .eye-on{display:block}
+
+/* 表单 */
+.register-form{display:flex;flex-direction:column;gap:15px}
+.register-form input{
+  width:100%;height:50px;
+  font:inherit;font-size:16px;
+  border-radius:25px;border:none;
+  background:#232323!important;color:#fff!important;
+  padding:0 25px;outline:none;
+  transition:background .2s;
+  -webkit-appearance:none;appearance:none
+}
+.register-form input::placeholder{color:#777}
+.register-form input:focus{background:#2a2a2a!important}
+.register-form input:-webkit-autofill,
+.register-form input:-webkit-autofill:hover,
+.register-form input:-webkit-autofill:focus{
+  -webkit-box-shadow:0 0 0 30px #232323 inset!important;
+  -webkit-text-fill-color:#fff!important;
+  caret-color:#fff;
+  transition:background-color 5000s ease-in-out 0s
+}
+
+.register-btn{
+  width:100%;height:50px;
+  background:#C9FE6E;color:#0A0A0B;border:none;
+  border-radius:25px;font:inherit;font-size:16px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:all .2s;letter-spacing:-0.01em;
+  margin-top:5px
+}
+.register-btn:hover{opacity:.85}
+
+.register-error{font-size:12px;color:#f4a3a3;min-height:18px;text-align:center}
+
+.register-login-link{
+  font-size:13px;color:#777
+}
+.register-login-link a{color:#fff;text-decoration:none;font-weight:600;transition:opacity .2s}
+.register-login-link a:hover{opacity:.7}
+
+@media(max-width:768px){
+  .register-title{font-size:26px}
+  .register-content{gap:20px}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav-login">
+  <a href="index.html" class="nav-login-logo">
+    <svg width="26" height="26" viewBox="0 0 256 256" fill="#ffffff"><path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"/></svg>
+    <span>jibuen</span>
+  </a>
+  <div class="nav-login-links">
+    <a href="index.html">首页</a>
+    <a href="notes.html">笔记</a>
+    <a href="login.html">登录</a>
+  </div>
+</nav>
+
+<div class="register-root">
+  <div class="register-content">
+    <p class="register-label">加入代码世界</p>
+    <h1 class="register-title">创建账号</h1>
+
+    <form class="register-form" onsubmit="return handleRegister(event)">
+      <input type="email" id="regEmail" placeholder="电子邮箱" autocomplete="email" required>
+      <div class="pass-wrap">
+        <input type="password" id="regPass" placeholder="密码" autocomplete="new-password" required>
+        <button type="button" class="toggle-pass" aria-label="显示密码" onclick="togglePass('regPass',this)"><svg class="eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg><svg class="eye-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9FE6E" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <div class="pass-wrap">
+        <input type="password" id="regPass2" placeholder="确认密码" autocomplete="new-password" required>
+        <button type="button" class="toggle-pass" aria-label="显示密码" onclick="togglePass('regPass2',this)"><svg class="eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg><svg class="eye-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9FE6E" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
+      </div>
+      <div class="register-error" id="regMsg"></div>
+      <button type="submit" class="register-btn">注册 <span style="font-size:12px">→</span></button>
+    </form>
+
+    <p class="register-login-link">已有账号？<a href="login.html">立即登录</a></p>
+  </div>
+</div>
+
+<script>
+function togglePass(id, btn){
+  var inp = document.getElementById(id);
+  if(inp.type === 'password'){ inp.type = 'text'; btn.classList.add('show'); }
+  else{ inp.type = 'password'; btn.classList.remove('show'); }
+}
+
+function handleRegister(e){
+  e.preventDefault();
+  var em = document.getElementById('regEmail').value.trim();
+  var p1 = document.getElementById('regPass').value.trim();
+  var p2 = document.getElementById('regPass2').value.trim();
+  var m = document.getElementById('regMsg');
+
+  if(!em || !p1 || !p2){ m.textContent = '请填写所有字段'; return false; }
+  if(!em.includes('@')){ m.textContent = '请输入有效的电子邮箱'; return false; }
+  if(p1 !== p2){ m.textContent = '两次密码不一致'; return false; }
+  if(p1.length < 6){ m.textContent = '密码至少6位'; return false; }
+
+  m.style.color = '#C9FE6E';
+  m.textContent = '注册成功，正在跳转…';
+  setTimeout(function(){ window.location.href = 'login.html'; }, 800);
+  return false;
+}
+</script>
+
+</body>
+</html>

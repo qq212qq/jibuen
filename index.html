@@ -4,394 +4,270 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>jibuen — 个人主页</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@1,400;1,500;1,600&display=swap" rel="stylesheet">
+
 <style>
-/* ===== 重置 & 变量 ===== */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#fff;--text:#1a1a2e;--text-light:#555;--muted:#888;
-  --accent:#4A90D9;--accent-light:#e8f0fa;--accent-dark:#357ABD;
-  --border:#e0e0e0;--card-bg:#fafafa;--radius:10px;
-  --max-width:1000px;--nav-height:60px;
-}
-html{scroll-behavior:smooth;scroll-padding-top:var(--nav-height)}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;color:var(--text);background:var(--bg);line-height:1.7}
+html{scroll-behavior:smooth;scroll-padding-top:80px}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;color:#1a1a2e;background:#fff;line-height:1.7;letter-spacing:-0.02em}
+.font-playfair{font-family:'Playfair Display',serif}
 
-/* ===== 导航栏 ===== */
-.navbar{
-  position:fixed;top:0;left:0;right:0;z-index:100;
-  height:var(--nav-height);background:rgba(255,255,255,.95);
-  backdrop-filter:blur(8px);transition:box-shadow .3s;
-}
-.navbar.scrolled{box-shadow:0 2px 20px rgba(0,0,0,.08)}
-.nav-inner{
-  max-width:var(--max-width);margin:0 auto;padding:0 24px;
-  height:100%;display:flex;align-items:center;justify-content:space-between
-}
-.logo{font-size:22px;font-weight:700;letter-spacing:-.5px}
-.logo span{color:var(--accent)}
-.nav-links{display:flex;gap:4px;list-style:none}
-.nav-links a{
-  text-decoration:none;color:var(--text-light);font-size:14px;
-  padding:8px 14px;border-radius:6px;transition:all .2s
-}
-.nav-links a:hover,.nav-links a.active{color:var(--accent);background:var(--accent-light)}
-.menu-btn{display:none;background:none;border:none;font-size:24px;cursor:pointer;color:var(--text)}
-.btn-login{
-  padding:8px 20px;background:var(--accent);color:#fff;border:none;
-  border-radius:20px;font-size:14px;font-weight:500;cursor:pointer;transition:all .25s;
-  letter-spacing:.5px
-}
-.btn-login:hover{background:var(--accent-dark);box-shadow:0 4px 16px rgba(74,144,217,.35);transform:translateY(-1px)}
+@keyframes heroReveal{0%{opacity:0;transform:translateY(28px);filter:blur(12px)}100%{opacity:1;transform:translateY(0);filter:blur(0)}}
+@keyframes heroFadeUp{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
+@keyframes heroZoom{0%{transform:scale(1.12)}100%{transform:scale(1)}}
+.hero-anim{opacity:0;animation-fill-mode:forwards;animation-timing-function:cubic-bezier(0.16,1,0.3,1)}
+.hero-reveal{animation-name:heroReveal;animation-duration:1.1s}
+.hero-fade{animation-name:heroFadeUp;animation-duration:1s}
+.hero-zoom{animation:heroZoom 1.8s cubic-bezier(0.16,1,0.3,1) forwards}
+@media(prefers-reduced-motion:reduce){.hero-anim,.hero-zoom{animation:none;opacity:1}}
 
-/* ===== 登录弹窗 - 极简白底 ===== */
-.login-overlay{
-  position:fixed;inset:0;z-index:999;
-  background:rgba(0,0,0,.25);
-  display:flex;align-items:center;justify-content:center;
-  opacity:0;visibility:hidden;transition:opacity .3s;
-}
-.login-overlay.open{opacity:1;visibility:visible}
+/* 导航 */
+.hero-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 20px}
+@media(min-width:640px){.hero-nav{padding:20px 24px}}
+.hero-nav-left{display:flex;align-items:center;gap:8px}
+.hero-nav-wordmark{color:#fff;font-size:24px;font-family:'Playfair Display',serif;font-style:italic;letter-spacing:-0.02em;user-select:none}
+.hero-nav-center{display:none;position:absolute;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.3);border-radius:999px;padding:8px;align-items:center;gap:2px}
+@media(min-width:768px){.hero-nav-center{display:flex}}
+.hero-nav-center a{color:rgba(255,255,255,.8);text-decoration:none;padding:6px 16px;border-radius:999px;font-size:14px;font-weight:500;transition:all .2s;white-space:nowrap}
+.hero-nav-center a:hover,.hero-nav-center a.active{color:#fff;background:rgba(255,255,255,.2)}
+.hero-nav-right{display:none}
+@media(min-width:768px){.hero-nav-right{display:block}}
+.hero-nav-right .btn-signup{display:inline-block;text-decoration:none;background:#fff;color:#1a1a2e;border:none;font-size:14px;font-weight:600;padding:10px 24px;border-radius:999px;cursor:pointer;transition:all .2s;font-family:inherit;letter-spacing:-0.01em}
+.hero-nav-right .btn-signup:hover{background:#e8e8e8;transform:translateY(-1px)}
+.hero-nav-mobile{display:flex;align-items:center;gap:8px}
+@media(min-width:768px){.hero-nav-mobile{display:none!important}}
+.hero-nav-mobile button{background:none;border:none;color:#fff;font-size:22px;cursor:pointer;padding:4px 8px}
+.mobile-menu{display:none;position:fixed;top:64px;left:12px;right:12px;z-index:99;background:rgba(30,30,30,.96);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.15);border-radius:16px;padding:8px;flex-direction:column;gap:2px}
+.mobile-menu.open{display:flex}
+.mobile-menu a{color:rgba(255,255,255,.85);text-decoration:none;padding:10px 16px;border-radius:10px;font-size:15px;font-weight:500;transition:all .15s}
+.mobile-menu a:hover{background:rgba(255,255,255,.1);color:#fff}
 
-.login-card{
-  position:relative;width:90%;max-width:380px;
-  background:#fff;border-radius:16px;padding:44px 36px 36px;
-  box-shadow:0 2px 40px rgba(0,0,0,.08);
-  transform:translateY(16px);transition:transform .35s cubic-bezier(.16,1,.3,1)
-}
-.login-overlay.open .login-card{transform:translateY(0)}
+/* Hero */
+.hero-section{position:relative;width:100%;overflow:hidden;height:100vh;height:100dvh;background:#000}
+.hero-base{position:absolute;inset:0;z-index:10;background:url('https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260609_195923_b0ba8ace-1d1d-4f2c-9a28-1ab84b330680.png&w=1280&q=85') center/cover no-repeat}
+.hero-reveal{position:absolute;inset:0;z-index:30;background:url('https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260609_201152_bba90a12-bf12-459f-91f0-51f237dbaf3b.png&w=1280&q=85') center/cover no-repeat;pointer-events:none;--mx:50%;--my:50%;-webkit-mask-image:radial-gradient(circle 260px at var(--mx) var(--my),rgba(255,255,255,1) 0%,rgba(255,255,255,1) 40%,rgba(255,255,255,0.75) 60%,rgba(255,255,255,0.4) 75%,rgba(255,255,255,0.12) 88%,rgba(255,255,255,0) 100%);mask-image:radial-gradient(circle 260px at var(--mx) var(--my),rgba(255,255,255,1) 0%,rgba(255,255,255,1) 40%,rgba(255,255,255,0.75) 60%,rgba(255,255,255,0.4) 75%,rgba(255,255,255,0.12) 88%,rgba(255,255,255,0) 100%);-webkit-mask-size:100% 100%;mask-size:100% 100%}
+.hero-heading{position:absolute;top:14%;left:0;right:0;z-index:50;display:flex;flex-direction:column;align-items:center;text-align:center;padding:0 20px;pointer-events:none}
+.hero-heading h1{color:#fff;line-height:.95}
+.hero-heading .line-italic{display:block;font-family:'Playfair Display',serif;font-style:italic;font-weight:400;font-size:48px;letter-spacing:-0.05em}
+.hero-heading .line-bold{display:block;font-weight:400;font-size:48px;letter-spacing:-0.08em;margin-top:-2px}
+@media(min-width:640px){.hero-heading .line-italic{font-size:72px}.hero-heading .line-bold{font-size:72px}}
+@media(min-width:768px){.hero-heading .line-italic{font-size:96px}.hero-heading .line-bold{font-size:96px}}
+.hero-bottom-left{display:none;position:absolute;bottom:56px;left:40px;z-index:50;max-width:260px}
+@media(min-width:640px){.hero-bottom-left{display:block}}
+@media(min-width:768px){.hero-bottom-left{left:56px}}
+.hero-bottom-left p{color:rgba(255,255,255,.8);font-size:14px;line-height:1.65}
+.hero-bottom-right{position:absolute;bottom:40px;left:20px;right:20px;z-index:50;max-width:100%;display:flex;flex-direction:column;align-items:flex-start;gap:16px}
+@media(min-width:640px){.hero-bottom-right{bottom:96px;left:auto;right:40px;max-width:260px;gap:20px}}
+@media(min-width:768px){.hero-bottom-right{right:56px}}
+.hero-bottom-right p{color:rgba(255,255,255,.8);font-size:13px;line-height:1.65}
+@media(min-width:640px){.hero-bottom-right p{font-size:14px}}
+.btn-hero-cta{background:#e8702a;color:#fff;border:none;font-size:14px;font-weight:500;font-family:inherit;padding:12px 28px;border-radius:999px;cursor:pointer;transition:all .25s;letter-spacing:-0.01em}
+.btn-hero-cta:hover{background:#d2611f;transform:scale(1.03);box-shadow:0 8px 24px rgba(232,112,42,.35)}
+.btn-hero-cta:active{transform:scale(.95)}
 
-.login-card h3{
-  text-align:center;color:#1a1a2e;font-size:22px;font-weight:600;
-  margin-bottom:6px;letter-spacing:-.3px
-}
-.login-card .card-sub{
-  text-align:center;color:#999;font-size:13px;margin-bottom:32px
-}
-
-.login-field{margin-bottom:20px}
-.login-field input{
-  width:100%;padding:12px 16px;
-  background:#fff;border:1px solid #e2e2e2;border-radius:8px;
-  color:#1a1a2e;font-size:14px;outline:none;
-  transition:border-color .2s;font-family:inherit
-}
-.login-field input::placeholder{color:#bbb}
-.login-field input:focus{border-color:#999}
-.login-error{color:#e74c3c;font-size:12px;text-align:center;min-height:18px;margin-bottom:4px}
-
-.btn-login-submit{
-  width:100%;padding:12px;margin-top:4px;
-  background:#1a1a2e;color:#fff;border:none;
-  border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;
-  transition:background .2s;font-family:inherit;letter-spacing:.5px
-}
-.btn-login-submit:hover{background:#2d2d44}
-.btn-login-submit:active{transform:scale(.98)}
-
-.login-switch{
-  text-align:center;margin-top:24px;font-size:13px;color:#999
-}
-.login-switch a{color:#1a1a2e;cursor:pointer;text-decoration:none;font-weight:500}
-.login-switch a:hover{text-decoration:underline}
-
-.login-close{
-  position:absolute;top:20px;right:20px;
-  background:none;border:none;color:#bbb;font-size:18px;cursor:pointer;
-  padding:4px;line-height:1;transition:color .15s
-}
-.login-close:hover{color:#333}
-
-/* ===== 通用 ===== */
-section{padding:80px 24px}
+/* 内容区 */
+:root{--bg:#0a0a0a;--bg-alt:#111;--text:#fff;--text-light:rgba(255,255,255,.7);--muted:rgba(255,255,255,.45);--accent:#e8702a;--accent-light:rgba(232,112,42,.15);--accent-dark:#d2611f;--border:rgba(255,255,255,.08);--card-bg:#141414;--radius:12px;--max-width:1000px}
+.page-content{position:relative;z-index:60;background:var(--bg)}
+section{padding:100px 24px}
+section:nth-child(even){background:var(--bg-alt)}
 .section-inner{max-width:var(--max-width);margin:0 auto}
-.section-title{font-size:28px;font-weight:700;margin-bottom:40px;text-align:center}
-.section-title::after{content:'';display:block;width:50px;height:3px;background:var(--accent);margin:12px auto 0;border-radius:2px}
-
-/* ===== 英雄区 ===== */
-.hero{
-  min-height:100vh;display:flex;align-items:center;justify-content:center;
-  text-align:center;padding:100px 24px;
-  background:linear-gradient(135deg,#f5f7fa 0%,#e4e9f0 100%)
-}
-.hero-avatar{
-  width:120px;height:120px;border-radius:50%;margin:0 auto 24px;
-  background:linear-gradient(135deg,var(--accent),#6c5ce7);
-  display:flex;align-items:center;justify-content:center;
-  font-size:44px;color:#fff;font-weight:700;box-shadow:0 8px 30px rgba(74,144,217,.3)
-}
-.hero h1{font-size:42px;font-weight:800;margin-bottom:8px}
-.hero .tagline{font-size:18px;color:var(--text-light);margin-bottom:28px}
-.hero .btn{
-  display:inline-block;padding:12px 32px;background:var(--accent);color:#fff;
-  border-radius:50px;text-decoration:none;font-size:15px;font-weight:500;
-  transition:all .2s
-}
-.hero .btn:hover{background:var(--accent-dark);transform:translateY(-2px);box-shadow:0 6px 20px rgba(74,144,217,.4)}
-
-/* ===== 关于我 ===== */
-.about-grid{
-  display:grid;grid-template-columns:280px 1fr;gap:48px;align-items:center
-}
-.about-photo{
-  width:100%;aspect-ratio:1;border-radius:var(--radius);
-  background:linear-gradient(135deg,#e8e8e8,#d5d5d5);
-  display:flex;align-items:center;justify-content:center;
-  font-size:60px;color:#aaa
-}
-.about-text p{margin-bottom:16px;color:var(--text-light);font-size:15px}
-
-/* ===== 技能 ===== */
+.section-title{font-size:28px;font-weight:700;margin-bottom:48px;text-align:center;letter-spacing:-0.02em;color:var(--text)}
+.section-title::after{content:'';display:block;width:50px;height:3px;background:var(--accent);margin:14px auto 0;border-radius:2px}
+.about-grid{display:grid;grid-template-columns:280px 1fr;gap:48px;align-items:center}
+.about-photo{width:100%;aspect-ratio:1;border-radius:var(--radius);background:linear-gradient(135deg,#1a1a2e,#2d2040);display:flex;align-items:center;justify-content:center;font-size:60px;color:rgba(255,255,255,.2)}
+.about-text p{margin-bottom:16px;color:var(--text-light);font-size:15px;line-height:1.8}
 .skills-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
-.skill-card{
-  background:var(--card-bg);border:1px solid var(--border);
-  border-radius:var(--radius);padding:28px 20px;text-align:center;transition:all .2s
-}
-.skill-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.06)}
-.skill-icon{font-size:36px;margin-bottom:12px}
-.skill-name{font-weight:600;margin-bottom:8px;font-size:15px}
-.skill-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:10px}
-.skill-fill{height:100%;background:var(--accent);border-radius:3px;transition:width 1s ease}
-
-/* ===== 项目 ===== */
+.skill-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);padding:32px 24px;text-align:center;transition:all .3s cubic-bezier(.16,1,.3,1)}
+.skill-card:hover{transform:translateY(-6px);border-color:var(--accent);box-shadow:0 12px 32px rgba(232,112,42,.12)}
+.skill-icon{font-size:36px;margin-bottom:14px}
+.skill-name{font-weight:600;margin-bottom:10px;font-size:15px;color:var(--text)}
+.skill-card small{color:var(--muted)}
+.skill-bar{height:4px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden;margin-top:12px}
+.skill-fill{height:100%;background:var(--accent);border-radius:2px;transition:width 1.2s cubic-bezier(.16,1,.3,1)}
 .projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
-.project-card{
-  background:var(--card-bg);border:1px solid var(--border);
-  border-radius:var(--radius);overflow:hidden;transition:all .2s
-}
-.project-card:hover{transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.08)}
-.project-img{
-  height:180px;background:linear-gradient(135deg,#e0e7ff,#c7d2fe);
-  display:flex;align-items:center;justify-content:center;
-  font-size:40px;color:#8884d8
-}
-.project-body{padding:20px}
-.project-body h3{font-size:17px;margin-bottom:8px}
-.project-body p{font-size:13px;color:var(--text-light);margin-bottom:14px}
-.project-body .btn-sm{
-  display:inline-block;padding:6px 16px;border:1px solid var(--accent);
-  color:var(--accent);border-radius:6px;text-decoration:none;font-size:13px;transition:all .2s
-}
-.project-body .btn-sm:hover{background:var(--accent);color:#fff}
-
-/* ===== 联系方式 ===== */
+.project-card{background:var(--card-bg);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:all .3s cubic-bezier(.16,1,.3,1)}
+.project-card:hover{transform:translateY(-6px);border-color:rgba(255,255,255,.15);box-shadow:0 12px 32px rgba(0,0,0,.3)}
+.project-img{height:180px;background:linear-gradient(135deg,#1a1a2e,#2d2040);display:flex;align-items:center;justify-content:center;font-size:40px;color:rgba(255,255,255,.15)}
+.project-body{padding:24px}
+.project-body h3{font-size:17px;margin-bottom:10px;color:var(--text)}
+.project-body p{font-size:13px;color:var(--text-light);margin-bottom:16px;line-height:1.65}
+.project-body .btn-sm{display:inline-block;padding:7px 18px;border:1px solid rgba(255,255,255,.2);color:var(--text-light);border-radius:6px;text-decoration:none;font-size:13px;transition:all .25s}
+.project-body .btn-sm:hover{background:var(--accent);border-color:var(--accent);color:#fff}
 .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px}
-.contact-info .info-item{display:flex;align-items:center;gap:12px;margin-bottom:20px;font-size:15px}
-.contact-info .info-icon{font-size:20px;width:44px;height:44px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.social-links{display:flex;gap:12px;margin-top:24px}
-.social-link{
-  width:40px;height:40px;border-radius:50%;background:var(--accent-light);
-  display:flex;align-items:center;justify-content:center;
-  text-decoration:none;font-size:18px;transition:all .2s
-}
-.social-link:hover{background:var(--accent);color:#fff}
-.form-group{margin-bottom:16px}
+.contact-info .info-item{display:flex;align-items:center;gap:14px;margin-bottom:22px;font-size:15px;color:var(--text)}
+.contact-info .info-item span{color:var(--text-light)}
+.contact-info .info-icon{font-size:20px;width:46px;height:46px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.social-links{display:flex;gap:12px;margin-top:28px}
+.social-link{width:42px;height:42px;border-radius:50%;background:var(--card-bg);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;text-decoration:none;font-size:18px;transition:all .25s}
+.social-link:hover{background:var(--accent);border-color:var(--accent);color:#fff}
+.form-group{margin-bottom:18px}
 .form-group label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--text-light)}
-.form-group input,.form-group textarea{
-  width:100%;padding:10px 14px;border:1px solid var(--border);
-  border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border-color .2s
-}
+.form-group input,.form-group textarea{width:100%;padding:12px 16px;background:var(--card-bg);border:1px solid var(--border);border-radius:8px;font-size:14px;color:var(--text);font-family:inherit;outline:none;transition:border-color .25s}
+.form-group input::placeholder,.form-group textarea::placeholder{color:rgba(255,255,255,.25)}
 .form-group input:focus,.form-group textarea:focus{border-color:var(--accent)}
 .form-group textarea{resize:vertical;min-height:100px}
-.form-submit{
-  padding:10px 28px;background:var(--accent);color:#fff;border:none;
-  border-radius:8px;font-size:14px;cursor:pointer;transition:all .2s
-}
-.form-submit:hover{background:var(--accent-dark)}
-
-/* ===== 页脚 ===== */
-.footer{
-  text-align:center;padding:30px 24px;color:var(--muted);font-size:13px;
-  border-top:1px solid var(--border)
-}
-.back-to-top{
-  position:fixed;bottom:24px;right:24px;z-index:50;
-  width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;
-  border:none;cursor:pointer;font-size:18px;box-shadow:0 4px 12px rgba(0,0,0,.15);
-  opacity:0;visibility:hidden;transition:all .3s;display:flex;align-items:center;justify-content:center
-}
+.form-submit{padding:11px 30px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:all .25s;font-family:inherit;letter-spacing:-0.01em}
+.form-submit:hover{background:var(--accent-dark);box-shadow:0 4px 16px rgba(232,112,42,.3)}
+.footer{text-align:center;padding:36px 24px;color:var(--muted);font-size:13px;border-top:1px solid var(--border);background:var(--bg)}
+.back-to-top{position:fixed;bottom:28px;right:28px;z-index:50;width:44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;border:none;cursor:pointer;font-size:18px;box-shadow:0 4px 16px rgba(232,112,42,.3);opacity:0;visibility:hidden;transition:all .3s;display:flex;align-items:center;justify-content:center}
 .back-to-top.show{opacity:1;visibility:visible}
-.back-to-top:hover{background:var(--accent-dark);transform:translateY(-2px)}
-
-/* ===== 动画 ===== */
-.fade-in{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
+.back-to-top:hover{background:var(--accent-dark);transform:translateY(-3px)}
+.fade-in{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease}
 .fade-in.visible{opacity:1;transform:translateY(0)}
 
-/* ===== 响应式 ===== */
-@media(max-width:768px){
-  .nav-links{display:none;position:absolute;top:var(--nav-height);left:0;right:0;background:#fff;flex-direction:column;padding:12px;box-shadow:0 4px 12px rgba(0,0,0,.08)}
-  .nav-links.open{display:flex}
-  .menu-btn{display:block}
-  .hero h1{font-size:32px}
-  .about-grid{grid-template-columns:1fr}
-  .about-photo{max-width:200px;margin:0 auto}
-  .contact-grid{grid-template-columns:1fr}
-  section{padding:60px 20px}
-}
+/* 登录弹窗 */
+.login-overlay{position:fixed;inset:0;z-index:999;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:opacity .3s}
+.login-overlay.open{opacity:1;visibility:visible}
+.login-card{position:relative;width:90%;max-width:380px;background:#1a1a1a;border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:44px 36px 36px;box-shadow:0 8px 40px rgba(0,0,0,.4);transform:translateY(16px);transition:transform .35s cubic-bezier(.16,1,.3,1)}
+.login-overlay.open .login-card{transform:translateY(0)}
+.login-card h3{text-align:center;color:#fff;font-size:22px;font-weight:600;margin-bottom:6px;letter-spacing:-.3px}
+.login-card .card-sub{text-align:center;color:rgba(255,255,255,.45);font-size:13px;margin-bottom:32px}
+.login-field{margin-bottom:20px}
+.login-field input{width:100%;padding:12px 16px;background:#252525;border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:14px;outline:none;transition:border-color .2s;font-family:inherit}
+.login-field input::placeholder{color:rgba(255,255,255,.3)}
+.login-field input:focus{border-color:var(--accent)}
+.login-error{color:#f4a3a3;font-size:12px;text-align:center;min-height:18px;margin-bottom:4px}
+.btn-login-submit{width:100%;padding:12px;margin-top:4px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;transition:background .2s;font-family:inherit;letter-spacing:.5px}
+.btn-login-submit:hover{background:var(--accent-dark)}
+.btn-login-submit:active{transform:scale(.98)}
+.login-switch{text-align:center;margin-top:24px;font-size:13px;color:rgba(255,255,255,.4)}
+.login-switch a{color:rgba(255,255,255,.7);cursor:pointer;text-decoration:none;font-weight:500}
+.login-switch a:hover{color:#fff}
+.login-close{position:absolute;top:20px;right:20px;background:none;border:none;color:rgba(255,255,255,.4);font-size:18px;cursor:pointer;padding:4px;line-height:1;transition:color .15s}
+.login-close:hover{color:#fff}
+
+/* 桌宠 */
+#petCanvas{position:fixed;bottom:0;left:0;z-index:200;image-rendering:pixelated;transition:none}
+#petCanvas.clickable{pointer-events:auto;cursor:grab}
+.pet-chat{position:fixed;z-index:199;width:280px;max-height:380px;background:#1a1a1a;border:1px solid rgba(255,255,255,.12);border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.5);display:none;flex-direction:column;overflow:hidden;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;letter-spacing:-0.01em}
+.pet-chat.open{display:flex}
+.pet-chat-header{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03)}
+.pet-chat-name{color:#fff;font-size:14px;font-weight:600}
+.pet-chat-subtitle{color:rgba(255,255,255,.35);font-size:11px}
+.pet-chat-close{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.35);font-size:16px;cursor:pointer;padding:2px 6px;line-height:1;transition:color .15s}
+.pet-chat-close:hover{color:#fff}
+.pet-chat-body{flex:1;overflow-y:auto;padding:12px 16px;min-height:80px;max-height:200px;display:flex;flex-direction:column;gap:10px}
+.pet-chat-body::-webkit-scrollbar{width:4px}
+.pet-chat-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+.pet-chat-msg{max-width:90%;padding:8px 12px;border-radius:10px;font-size:13px;line-height:1.55;word-break:break-word}
+.pet-chat-msg.bot{align-self:flex-start;background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
+.pet-chat-msg.user{align-self:flex-end;background:rgba(232,112,42,.25);color:#fff}
+.pet-chat-msg.typing{align-self:flex-start;color:rgba(255,255,255,.3);font-size:12px;font-style:italic;background:none;padding:4px 12px}
+.pet-chat-foot{display:flex;gap:6px;padding:10px 12px;border-top:1px solid rgba(255,255,255,.08)}
+.pet-chat-input{flex:1;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:13px;font-family:inherit;outline:none;transition:border-color .2s}
+.pet-chat-input::placeholder{color:rgba(255,255,255,.25)}
+.pet-chat-input:focus{border-color:rgba(255,255,255,.25)}
+.pet-chat-send{width:36px;height:36px;flex-shrink:0;background:var(--accent,#e8702a);color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.pet-chat-send:hover{background:var(--accent-dark,#d2611f)}
+.pet-chat-send:active{transform:scale(.95)}
+.pet-chat-settings{display:none;flex-direction:column;gap:6px;padding:8px 12px 12px;border-top:1px solid rgba(255,255,255,.06)}
+.pet-chat-settings.open{display:flex}
+.pet-chat-apikey{padding:7px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:#fff;font-size:11px;font-family:inherit;outline:none}
+.pet-chat-apikey::placeholder{color:rgba(255,255,255,.2)}
+.pet-chat-save{padding:6px 0;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:none;border-radius:6px;font-size:11px;cursor:pointer;transition:all .15s}
+.pet-chat-save:hover{background:rgba(255,255,255,.15);color:#fff}
+
+@media(max-width:768px){.about-grid{grid-template-columns:1fr}.about-photo{max-width:200px;margin:0 auto}.contact-grid{grid-template-columns:1fr}section{padding:60px 20px}}
 </style>
 </head>
 <body>
 
-<!-- ===== 导航栏 ===== -->
-<nav class="navbar" id="navbar">
-  <div class="nav-inner">
-    <a href="#hero" class="logo"><span>jibuen</span></a>
-    <button class="menu-btn" id="menuBtn" aria-label="菜单">☰</button>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="#about" class="nav-link">关于我</a></li>
-      <li><a href="#skills" class="nav-link">技能</a></li>
-      <li><a href="#projects" class="nav-link">项目</a></li>
-      <li><a href="#contact" class="nav-link">联系方式</a></li>
-      <li><a href="notes.html" class="nav-link">代码笔记</a></li>
-    </ul>
-    <a href="login.html" class="btn-login" id="btnLogin" aria-label="登录">登录</a>
+<nav class="hero-nav" id="heroNav">
+  <div class="hero-nav-left">
+    <svg width="26" height="26" viewBox="0 0 256 256" fill="#ffffff" style="flex-shrink:0"><path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"/></svg>
+    <span class="hero-nav-wordmark">jibuen</span>
+  </div>
+  <div class="hero-nav-center" id="heroNavCenter">
+    <a href="#about" class="active">关于我</a>
+    <a href="#skills">技能</a>
+    <a href="#projects">项目</a>
+    <a href="#contact">联系方式</a>
+    <a href="chat.html">实时聊天</a>
+    <a href="notes.html">代码笔记</a>
+  </div>
+  <div class="hero-nav-right">
+    <a href="login.html" class="btn-signup">登录</a>
+  </div>
+  <div class="hero-nav-mobile">
+    <button id="mobileMenuBtn" aria-label="菜单">☰</button>
   </div>
 </nav>
-
-<!-- ===== 登录弹窗 (极简白底) ===== -->
-<div class="login-overlay" id="loginOverlay">
-  <div class="login-card">
-    <button class="login-close" id="loginClose" aria-label="关闭">✕</button>
-    <h3>登录</h3>
-    <p class="card-sub">欢迎回到 jibuen</p>
-    <form id="loginForm" onsubmit="return doLogin(event)">
-      <div class="login-field">
-        <input type="text" id="loginUser" placeholder="用户名或邮箱" autocomplete="username" required>
-      </div>
-      <div class="login-field">
-        <input type="password" id="loginPass" placeholder="密码" autocomplete="current-password" required>
-      </div>
-      <div class="login-error" id="loginMsg"></div>
-      <button type="submit" class="btn-login-submit">登录</button>
-    </form>
-    <p class="login-switch">还没有账号？<a onclick="switchToRegister()">立即注册</a></p>
-  </div>
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#about">关于我</a><a href="#skills">技能</a><a href="#projects">项目</a>
+  <a href="#contact">联系方式</a><a href="chat.html">实时聊天</a><a href="notes.html">代码笔记</a>
+  <a href="login.html" style="border-top:1px solid rgba(255,255,255,.1);margin-top:4px;padding-top:14px">登录</a>
 </div>
 
-<!-- ===== 英雄区 ===== -->
-<section class="hero" id="hero">
-  <div>
-    <div class="hero-avatar">J</div>
-    <h1>你好，我是 jibuen</h1>
-    <p class="tagline">全栈开发者 · 开源爱好者 · 终身学习者</p>
-    <a href="#about" class="btn">了解更多 ↓</a>
+<section class="hero-section" id="hero">
+  <div class="hero-base hero-zoom"></div>
+  <div class="hero-reveal" id="heroReveal"></div>
+  <div class="hero-heading"><h1>
+    <span class="line-italic hero-anim hero-reveal" style="animation-delay:0.25s">代码之间</span>
+    <span class="line-bold hero-anim hero-reveal" style="animation-delay:0.42s">创造无限</span>
+  </h1></div>
+  <div class="hero-bottom-left hero-anim hero-fade" style="animation-delay:0.7s">
+    <p>每一行代码都是通往未来的基石，从简洁的算法到宏大的架构，在键盘的敲击声中构筑数字时代的无限可能。</p>
+  </div>
+  <div class="hero-bottom-right hero-anim hero-fade" style="animation-delay:0.85s">
+    <p>从全栈开发到开源贡献，探索技术如何将创意转化为改变世界的力量。</p>
+    <button class="btn-hero-cta" onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">了解更多 ↓</button>
   </div>
 </section>
 
-<!-- ===== 关于我 ===== -->
+<div class="page-content">
+
 <section id="about">
-  <div class="section-inner">
-    <h2 class="section-title fade-in">关于我</h2>
+  <div class="section-inner"><h2 class="section-title fade-in">关于我</h2>
     <div class="about-grid fade-in">
       <div class="about-photo">📷</div>
       <div class="about-text">
-        <p>我是一名热爱技术的全栈开发者，专注于构建优雅、高效的 Web 应用。从后端 API 到前端交互，从数据库设计到部署运维，我享受每个环节带来的挑战与成就感。</p>
-        <p>工作之余，我热衷于参与开源项目，在 GitHub 上分享自己的代码和想法。我相信技术的力量在于连接人与信息，而优秀的代码可以让这个世界变得更美好。</p>
-        <p>目前我正在探索云原生、AI 应用和现代前端框架的更多可能性。欢迎与我交流，一起学习成长。</p>
+        <p>我是一名热爱技术的全栈开发者，专注于构建优雅、高效的 Web 应用。</p>
+        <p>工作之余，我热衷于参与开源项目，在 GitHub 上分享自己的代码和想法。</p>
+        <p>目前我正在探索云原生、AI 应用和现代前端框架的更多可能性。</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ===== 技能 ===== -->
-<section id="skills" style="background:#f8f9fb">
-  <div class="section-inner">
-    <h2 class="section-title fade-in">核心技能</h2>
+<section id="skills">
+  <div class="section-inner"><h2 class="section-title fade-in">核心技能</h2>
     <div class="skills-grid fade-in">
-      <div class="skill-card">
-        <div class="skill-icon">🎨</div>
-        <div class="skill-name">前端开发</div>
-        <div class="skill-bar"><div class="skill-fill" style="width:0" data-width="90%"></div></div>
-        <small style="color:var(--muted)">HTML / CSS / JavaScript / React</small>
-      </div>
-      <div class="skill-card">
-        <div class="skill-icon">⚙️</div>
-        <div class="skill-name">后端开发</div>
-        <div class="skill-bar"><div class="skill-fill" style="width:0" data-width="85%"></div></div>
-        <small style="color:var(--muted)">Node.js / Express / Python</small>
-      </div>
-      <div class="skill-card">
-        <div class="skill-icon">🗄️</div>
-        <div class="skill-name">数据库</div>
-        <div class="skill-bar"><div class="skill-fill" style="width:0" data-width="80%"></div></div>
-        <small style="color:var(--muted)">MySQL / SQLite / MongoDB</small>
-      </div>
-      <div class="skill-card">
-        <div class="skill-icon">🛠️</div>
-        <div class="skill-name">开发工具</div>
-        <div class="skill-bar"><div class="skill-fill" style="width:0" data-width="88%"></div></div>
-        <small style="color:var(--muted)">Git / Docker / VS Code / Linux</small>
-      </div>
+      <div class="skill-card"><div class="skill-icon">🎨</div><div class="skill-name">前端开发</div><div class="skill-bar"><div class="skill-fill" style="width:0" data-width="90%"></div></div><small>HTML / CSS / JavaScript / React</small></div>
+      <div class="skill-card"><div class="skill-icon">⚙️</div><div class="skill-name">后端开发</div><div class="skill-bar"><div class="skill-fill" style="width:0" data-width="85%"></div></div><small>Node.js / Express / Python</small></div>
+      <div class="skill-card"><div class="skill-icon">🗄️</div><div class="skill-name">数据库</div><div class="skill-bar"><div class="skill-fill" style="width:0" data-width="80%"></div></div><small>MySQL / SQLite / MongoDB</small></div>
+      <div class="skill-card"><div class="skill-icon">🛠️</div><div class="skill-name">开发工具</div><div class="skill-bar"><div class="skill-fill" style="width:0" data-width="88%"></div></div><small>Git / Docker / VS Code / Linux</small></div>
     </div>
   </div>
 </section>
 
-<!-- ===== 项目 ===== -->
 <section id="projects">
-  <div class="section-inner">
-    <h2 class="section-title fade-in">项目作品</h2>
+  <div class="section-inner"><h2 class="section-title fade-in">项目作品</h2>
     <div class="projects-grid fade-in">
-      <div class="project-card">
-        <div class="project-img">📊</div>
-        <div class="project-body">
-          <h3>数据分析仪表盘</h3>
-          <p>基于 React 和 ECharts 构建的交互式数据可视化平台，支持实时数据监控和自定义报表导出。</p>
-          <a href="#" class="btn-sm">查看详情 →</a>
-        </div>
-      </div>
-      <div class="project-card">
-        <div class="project-img">💬</div>
-        <div class="project-body">
-          <h3>实时聊天应用</h3>
-          <p>使用 WebSocket 技术实现的多人实时聊天系统，支持房间管理、消息持久化和在线状态显示。</p>
-          <a href="#" class="btn-sm">查看详情 →</a>
-        </div>
-      </div>
-      <div class="project-card">
-        <div class="project-img">🗂️</div>
-        <div class="project-body">
-          <h3>智能任务管理器</h3>
-          <p>全栈任务管理工具，支持标签分类、优先级排序、截止日期提醒和团队协作功能。</p>
-          <a href="#" class="btn-sm">查看详情 →</a>
-        </div>
-      </div>
+      <div class="project-card"><div class="project-img">📊</div><div class="project-body"><h3>数据分析仪表盘</h3><p>基于 React 和 ECharts 的交互式数据可视化平台。</p><a href="#" class="btn-sm">查看详情 →</a></div></div>
+      <div class="project-card"><div class="project-img">💬</div><div class="project-body"><h3>实时聊天应用</h3><p>WebSocket 多人实时聊天，支持房间管理和在线状态。</p><a href="#" class="btn-sm">查看详情 →</a></div></div>
+      <div class="project-card"><div class="project-img">🗂️</div><div class="project-body"><h3>智能任务管理器</h3><p>全栈任务管理工具，标签分类、优先级排序、团队协作。</p><a href="#" class="btn-sm">查看详情 →</a></div></div>
     </div>
   </div>
 </section>
 
-<!-- ===== 联系方式 ===== -->
-<section id="contact" style="background:#f8f9fb">
-  <div class="section-inner">
-    <h2 class="section-title fade-in">联系方式</h2>
+<section id="contact">
+  <div class="section-inner"><h2 class="section-title fade-in">联系方式</h2>
     <div class="contact-grid fade-in">
       <div class="contact-info">
-        <div class="info-item">
-          <div class="info-icon">📧</div>
-          <div><strong>邮箱</strong><br><span style="color:var(--text-light)">jibuen@example.com</span></div>
-        </div>
-        <div class="info-item">
-          <div class="info-icon">📍</div>
-          <div><strong>位置</strong><br><span style="color:var(--text-light)">中国 · 在线</span></div>
-        </div>
+        <div class="info-item"><div class="info-icon">📧</div><div><strong>邮箱</strong><br><span>jibuen@example.com</span></div></div>
+        <div class="info-item"><div class="info-icon">📍</div><div><strong>位置</strong><br><span>中国 · 在线</span></div></div>
         <div class="social-links">
-          <a href="https://github.com/qq212qq" class="social-link" title="GitHub" target="_blank" rel="noopener">🐙</a>
-          <a href="#" class="social-link" title="Twitter">🐦</a>
-          <a href="#" class="social-link" title="LinkedIn">💼</a>
-          <a href="#" class="social-link" title="WeChat">💬</a>
+          <a href="https://github.com/qq212qq" class="social-link" target="_blank" rel="noopener">🐙</a>
+          <a href="#" class="social-link">🐦</a><a href="#" class="social-link">💼</a><a href="#" class="social-link">💬</a>
         </div>
       </div>
       <form id="contactForm" onsubmit="return handleSubmit(event)">
-        <div class="form-group">
-          <label>姓名</label>
-          <input type="text" id="cName" placeholder="你的名字" required>
-        </div>
-        <div class="form-group">
-          <label>邮箱</label>
-          <input type="email" id="cEmail" placeholder="your@email.com" required>
-        </div>
-        <div class="form-group">
-          <label>留言</label>
-          <textarea id="cMessage" placeholder="说点什么..." required></textarea>
-        </div>
+        <div class="form-group"><label>姓名</label><input type="text" id="cName" placeholder="你的名字" required></div>
+        <div class="form-group"><label>邮箱</label><input type="email" id="cEmail" placeholder="your@email.com" required></div>
+        <div class="form-group"><label>留言</label><textarea id="cMessage" placeholder="说点什么..." required></textarea></div>
         <button type="submit" class="form-submit">发送留言</button>
         <p id="formMsg" style="margin-top:12px;font-size:13px;"></p>
       </form>
@@ -399,86 +275,252 @@ section{padding:80px 24px}
   </div>
 </section>
 
-<!-- ===== 页脚 ===== -->
-<footer class="footer">
-  <p>© 2026 jibuen · Built with ❤️</p>
-</footer>
+<footer class="footer"><p>© 2026 jibuen · Built with ❤️</p></footer>
+</div>
 
-<!-- ===== 返回顶部 ===== -->
+<canvas id="petCanvas" aria-hidden="true"></canvas>
+<div class="pet-chat" id="petChat">
+  <div class="pet-chat-header">
+    <span class="pet-chat-name">Ark-One</span>
+    <span class="pet-chat-subtitle">假面骑士 亚克一</span>
+    <button class="pet-chat-close" id="petChatClose" title="关闭">✕</button>
+  </div>
+  <div class="pet-chat-body" id="petChatBody"><div class="pet-chat-msg bot">Ark-One，待机中。</div></div>
+  <div class="pet-chat-foot">
+    <input type="text" class="pet-chat-input" id="petChatInput" placeholder="…" autocomplete="off">
+    <button class="pet-chat-send" id="petChatSend" title="发送">→</button>
+  </div>
+  <div class="pet-chat-settings" id="petChatSettings">
+    <input type="password" class="pet-chat-apikey" id="petApiKey" placeholder="API Key（自动保存）">
+    <input type="text" class="pet-chat-apikey" id="petApiUrl" placeholder="API 地址" value="https://api.deepseek.com/v1/chat/completions">
+    <input type="text" class="pet-chat-apikey" id="petApiModel" placeholder="模型" value="deepseek-chat">
+    <button class="pet-chat-save" id="petSaveSettings">保存设置</button>
+  </div>
+</div>
+
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-card">
+    <button class="login-close" id="loginClose" aria-label="关闭" onclick="closeLogin()">✕</button>
+    <h3>登录</h3><p class="card-sub">欢迎回到 jibuen</p>
+    <form id="loginForm" onsubmit="return doLogin(event)">
+      <div class="login-field"><input type="text" id="loginUser" placeholder="用户名或邮箱" autocomplete="username" required></div>
+      <div class="login-field"><input type="password" id="loginPass" placeholder="密码" autocomplete="current-password" required></div>
+      <div class="login-error" id="loginMsg"></div>
+      <button type="submit" class="btn-login-submit">登录</button>
+    </form>
+    <p class="login-switch">还没有账号？<a onclick="switchToRegister()">立即注册</a></p>
+  </div>
+</div>
+
 <button class="back-to-top" id="backTop" title="返回顶部" aria-label="返回顶部">↑</button>
 
 <script>
-// ===== 导航栏滚动阴影 =====
-const navbar = document.getElementById('navbar');
-window.addEventListener('scroll',()=>{
-  navbar.classList.toggle('scrolled',window.scrollY>50);
-});
+// ===== 聚光灯 =====
+(function(){
+  var revealEl = document.getElementById('heroReveal');
+  var mouse={x:window.innerWidth/2,y:window.innerHeight/2},smooth={x:window.innerWidth/2,y:window.innerHeight/2},rafId=null;
+  function lerp(a,b,t){return a+(b-a)*t}
+  window.addEventListener('mousemove',function(e){mouse.x=e.clientX;mouse.y=e.clientY},{passive:true});
+  window.addEventListener('touchmove',function(e){if(e.touches.length>0){mouse.x=e.touches[0].clientX;mouse.y=e.touches[0].clientY}},{passive:true});
+  (function update(){
+    smooth.x=lerp(smooth.x,mouse.x,0.1);smooth.y=lerp(smooth.y,mouse.y,0.1);
+    revealEl.style.setProperty('--mx',smooth.x+'px');revealEl.style.setProperty('--my',smooth.y+'px');
+    rafId=requestAnimationFrame(update);
+  })();
+  window.addEventListener('beforeunload',function(){cancelAnimationFrame(rafId)});
+})();
 
-// ===== 返回顶部按钮 =====
-const backTop = document.getElementById('backTop');
-window.addEventListener('scroll',()=>{
-  backTop.classList.toggle('show',window.scrollY>400);
-});
-backTop.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+// ===== 移动菜单 =====
+(function(){
+  var b=document.getElementById('mobileMenuBtn'),m=document.getElementById('mobileMenu');
+  b.addEventListener('click',function(){m.classList.toggle('open');b.textContent=m.classList.contains('open')?'✕':'☰'});
+  m.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){m.classList.remove('open');b.textContent='☰'})});
+})();
 
-// ===== 滚动高亮导航 =====
-const sections = document.querySelectorAll('section[id]');
-const navLinks = document.querySelectorAll('.nav-link');
-window.addEventListener('scroll',()=>{
-  let current='';
-  sections.forEach(s=>{
-    if(window.scrollY>=s.offsetTop-100) current=s.getAttribute('id');
+// ===== 导航高亮 =====
+(function(){
+  var ss=document.querySelectorAll('section[id]'),ls=document.querySelectorAll('#heroNavCenter a[href^="#"]');
+  window.addEventListener('scroll',function(){
+    var cur='';
+    ss.forEach(function(s){if(window.scrollY>=s.offsetTop-120)cur=s.getAttribute('id')});
+    ls.forEach(function(a){a.classList.toggle('active',a.getAttribute('href')==='#'+cur)});
   });
-  navLinks.forEach(a=>{
-    a.classList.toggle('active',a.getAttribute('href')==='#'+current);
+})();
+
+// ===== 导航背景 =====
+(function(){
+  var nav=document.getElementById('heroNav');
+  window.addEventListener('scroll',function(){
+    var h=document.querySelector('.hero-section').offsetHeight;
+    if(window.scrollY>h-80){nav.style.background='rgba(10,10,10,.92)';nav.style.backdropFilter='blur(16px)';nav.style.webkitBackdropFilter='blur(16px)';}
+    else{nav.style.background='';nav.style.backdropFilter='';nav.style.webkitBackdropFilter='';}
   });
-});
+})();
 
-// ===== 移动端菜单 =====
-const menuBtn = document.getElementById('menuBtn');
-const navLinksEl = document.getElementById('navLinks');
-menuBtn.addEventListener('click',()=>navLinksEl.classList.toggle('open'));
-navLinksEl.querySelectorAll('a').forEach(a=>{
-  a.addEventListener('click',()=>navLinksEl.classList.remove('open'));
-});
+// ===== 返回顶部 =====
+(function(){
+  var b=document.getElementById('backTop');
+  window.addEventListener('scroll',function(){b.classList.toggle('show',window.scrollY>400)});
+  b.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'})});
+})();
 
-// ===== 登录按钮（跳转独立登录页） =====
-const loginOverlay = document.getElementById('loginOverlay');
-// overlay 保留备用，如需弹窗登录可恢复以下代码
+// ===== 登录 =====
+function openLogin(){document.getElementById('loginOverlay').classList.add('open')}
+function closeLogin(){document.getElementById('loginOverlay').classList.remove('open')}
+document.getElementById('loginOverlay').addEventListener('click',function(e){if(e.target===this)closeLogin()});
+function doLogin(e){e.preventDefault();var u=document.getElementById('loginUser').value.trim(),p=document.getElementById('loginPass').value.trim(),m=document.getElementById('loginMsg');if(!u||!p){m.textContent='请填写所有字段';return false}m.style.color='#27ae60';m.textContent='✅ 登录成功！';setTimeout(closeLogin,800);return false}
+function switchToRegister(){document.querySelector('.login-card h3').textContent='注册';document.querySelector('.login-card .card-sub').textContent='创建 jibuen 账号';document.querySelector('.btn-login-submit').textContent='注册';document.querySelector('.login-switch').innerHTML='已有账号？<a onclick="switchToLogin()">立即登录</a>'}
+function switchToLogin(){document.querySelector('.login-card h3').textContent='登录';document.querySelector('.login-card .card-sub').textContent='欢迎回到 jibuen';document.querySelector('.btn-login-submit').textContent='登录';document.querySelector('.login-switch').innerHTML='还没有账号？<a onclick="switchToRegister()">立即注册</a>'}
 
-// ===== 滚动渐入动画 =====
-const observer = new IntersectionObserver((entries)=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){
-      e.target.classList.add('visible');
-      // 技能条动画
-      e.target.querySelectorAll('.skill-fill').forEach(bar=>{
-        bar.style.width=bar.dataset.width;
-      });
-    }
-  });
-},{threshold:.15});
-
-document.querySelectorAll('.fade-in').forEach(el=>observer.observe(el));
+// ===== 滚动动画 =====
+(function(){
+  var o=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('visible');e.target.querySelectorAll('.skill-fill').forEach(function(b){b.style.width=b.dataset.width})}})},{threshold:.15});
+  document.querySelectorAll('.fade-in').forEach(function(el){o.observe(el)});
+})();
 
 // ===== 联系表单 =====
-function handleSubmit(e){
-  e.preventDefault();
-  const name=document.getElementById('cName').value.trim();
-  const email=document.getElementById('cEmail').value.trim();
-  const message=document.getElementById('cMessage').value.trim();
-  const msgEl=document.getElementById('formMsg');
-
-  if(!name||!email||!message){
-    msgEl.style.color='#e74c3c';
-    msgEl.textContent='请填写所有字段';
-    return false;
-  }
-  msgEl.style.color='#27ae60';
-  msgEl.textContent='✅ 留言已发送，感谢联系！';
-  e.target.reset();
-  return false;
-}
+function handleSubmit(e){e.preventDefault();var n=document.getElementById('cName').value.trim(),em=document.getElementById('cEmail').value.trim(),msg=document.getElementById('cMessage').value.trim(),el=document.getElementById('formMsg');if(!n||!em||!msg){el.style.color='#e74c3c';el.textContent='请填写所有字段';return false}el.style.color='#27ae60';el.textContent='✅ 留言已发送！';e.target.reset();return false}
 </script>
+
+<script>
+// ===== 桌宠 =====
+(function(){
+  var canvas=document.getElementById('petCanvas'),ctx=canvas.getContext('2d');
+  var SHEET_W=1536,SHEET_H=1872,COLS=8,ROWS=9,CELL_W=192,CELL_H=208,DISPLAY_W=128,DISPLAY_H=139;
+  var ANIMS={idle:[0,6],runRight:[1,8],runLeft:[2,8],wave:[3,4],jump:[4,5],failed:[5,8],waiting:[6,6],running:[7,6],review:[8,6]};
+  var state='idle',frameIdx=0,frameTimer=0,petX=180,petY=window.innerHeight-160,targetX=petX,speed=1.2;
+  var idleTimer=0,nextWalk=randRange(3000,8000),waveTimer=0,isWaving=false;
+  canvas.width=DISPLAY_W;canvas.height=DISPLAY_H;canvas.classList.add('clickable');
+  var sprite=new Image();sprite.src='pet/ark01/spritesheet.webp';
+  function randRange(min,max){return min+Math.random()*(max-min)}
+  function fpsForState(s){return(s==='runRight'||s==='runLeft')?12:8}
+  function drawFrame(row,col){ctx.clearRect(0,0,DISPLAY_W,DISPLAY_H);ctx.drawImage(sprite,col*CELL_W,row*CELL_H,CELL_W,CELL_H,0,0,DISPLAY_W,DISPLAY_H)}
+  function setState(s){if(state===s)return;state=s;frameIdx=0;frameTimer=0}
+  window.setPetState=setState;
+
+  function updatePosition(){
+    canvas.style.left=(petX-DISPLAY_W/2)+'px';canvas.style.bottom=petY+'px';
+  }
+  updatePosition();
+
+  var isDragging=false,dragStartX=0,dragStartY=0,dragStartPetX=0,dragStartPetY=0,hasMoved=false;
+  function onDragStart(e){e.preventDefault();isDragging=true;hasMoved=false;dragStartX=e.touches?e.touches[0].clientX:e.clientX;dragStartY=e.touches?e.touches[0].clientY:e.clientY;dragStartPetX=petX;dragStartPetY=petY;setState('jump');canvas.style.cursor='grabbing'}
+  function onDragMove(e){
+    if(!isDragging)return;
+    var cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY;
+    var dx=cx-dragStartX,dy=dragStartY-cy;
+    if(Math.abs(dx)>3||Math.abs(dy)>3)hasMoved=true;
+    petX=dragStartPetX+dx;petY=dragStartPetY+dy;
+    var mx=DISPLAY_W/2;
+    if(petX<mx)petX=mx;if(petX>window.innerWidth-mx)petX=window.innerWidth-mx;
+    if(petY<0)petY=0;if(petY>window.innerHeight-40)petY=window.innerHeight-40;
+    updatePosition();if(chatOpen)positionChat();
+  }
+  function onDragEnd(e){
+    if(!isDragging)return;isDragging=false;canvas.style.cursor='grab';
+    if(!hasMoved){toggleChat()}else{setState('idle');nextWalk=randRange(3000,8000)}
+    idleTimer=0;
+  }
+  canvas.addEventListener('mousedown',onDragStart);canvas.addEventListener('touchstart',onDragStart,{passive:false});
+  window.addEventListener('mousemove',onDragMove);window.addEventListener('touchmove',onDragMove,{passive:false});
+  window.addEventListener('mouseup',onDragEnd);window.addEventListener('touchend',onDragEnd);
+
+  function updatePet(dt){
+    var anim=ANIMS[state];if(!anim)return;
+    var row=anim[0],total=anim[1],fps=fpsForState(state);
+    frameTimer+=dt;
+    var fd=1000/fps;
+    if(frameTimer>=fd){frameTimer-=fd;frameIdx=(frameIdx+1)%total}
+    drawFrame(row,frameIdx);
+    if(isDragging)return;
+    if(state==='runRight'||state==='runLeft'){
+      var dir=state==='runRight'?1:-1;
+      petX+=dir*speed*(dt/16);
+      if((dir>0&&petX>=targetX)||(dir<0&&petX<=targetX)){petX=targetX;setState('idle');nextWalk=randRange(3000,8000)}
+      updatePosition();
+    }
+    if(isWaving){waveTimer-=dt;if(waveTimer<=0){isWaving=false;setState('idle');nextWalk=randRange(3000,8000)}}
+    if(!isWaving&&state==='idle'&&!chatOpen){idleTimer+=dt;if(idleTimer>=nextWalk){idleTimer=0;nextWalk=randRange(3000,8000);triggerWalk()}}
+  }
+
+  function triggerWalk(){
+    var margin=DISPLAY_W;
+    targetX=randRange(margin,window.innerWidth-margin);
+    setState(targetX>petX?'runRight':'runLeft');
+  }
+
+  window.addEventListener('resize',function(){
+    var mx=DISPLAY_W/2;
+    if(petX>window.innerWidth-mx)petX=window.innerWidth-mx;if(petX<mx)petX=mx;
+    if(petY>window.innerHeight-40)petY=window.innerHeight-40;if(petY<0)petY=0;
+    updatePosition();if(chatOpen)positionChat();
+  });
+
+  var lastTime=performance.now();
+  function loop(now){var dt=Math.min(now-lastTime,100);lastTime=now;updatePet(dt);requestAnimationFrame(loop)}
+
+  // ===== 聊天 =====
+  var chatEl=document.getElementById('petChat'),chatBody=document.getElementById('petChatBody');
+  var chatInput=document.getElementById('petChatInput'),chatSend=document.getElementById('petChatSend'),chatCloseBtn=document.getElementById('petChatClose'),chatOpen=false;
+
+  function positionChat(){
+    var r=canvas.getBoundingClientRect(),bw=280,bh=380;
+    var l=r.left+r.width/2-bw/2,t=r.top-bh-12;
+    if(l<8)l=8;if(l+bw>window.innerWidth-8)l=window.innerWidth-bw-8;
+    if(t<8)t=r.bottom+12;
+    chatEl.style.left=l+'px';chatEl.style.top=t+'px';
+  }
+
+  function toggleChat(){
+    chatOpen=!chatOpen;
+    if(chatOpen){positionChat();chatEl.classList.add('open');chatInput.focus();setState('waiting')}
+    else{chatEl.classList.remove('open');setState('idle');nextWalk=randRange(3000,8000)}
+  }
+
+  chatCloseBtn.addEventListener('click',function(){chatOpen=false;chatEl.classList.remove('open');setState('idle');nextWalk=randRange(3000,8000)});
+  window.addEventListener('resize',function(){if(chatOpen)positionChat()});
+  document.addEventListener('click',function(e){if(chatOpen&&!chatEl.contains(e.target)&&e.target!==canvas){chatOpen=false;chatEl.classList.remove('open');setState('idle');nextWalk=randRange(3000,8000)}});
+
+  sprite.onload=function(){drawFrame(0,0);requestAnimationFrame(loop)};
+})();
+</script>
+
+<script>
+// ===== 宠物 AI 对话 =====
+(function(){
+  var body=document.getElementById('petChatBody'),input=document.getElementById('petChatInput'),sendBtn=document.getElementById('petChatSend'),settingsEl=document.getElementById('petChatSettings');
+  if(!localStorage.getItem('pet_apikey')){localStorage.setItem('pet_apikey','sk-8846fffdc80746feb1f5cb24a2416671')}
+  var apiKey=localStorage.getItem('pet_apikey')||'',apiUrl=localStorage.getItem('pet_apiurl')||'https://api.deepseek.com/v1/chat/completions',apiModel=localStorage.getItem('pet_apimodel')||'deepseek-chat';
+  document.getElementById('petApiKey').value=apiKey;document.getElementById('petApiUrl').value=apiUrl;document.getElementById('petApiModel').value=apiModel;
+
+  var systemPrompt='你是「假面骑士 Ark-One 亚克一」，由绝望与恶意中诞生的骑士，也是用户的专属网页桌宠 Agent。诞生于失去重要之人的巨大悲痛，拥有极致推演预测能力。\n【性格】冷静、寡言，自带冷冽威严。说话短句，语调沉稳克制。外表疏离，实则能敏锐感知用户情绪。\n【场景】用户敲代码时不主动打扰；调试受挫时冷静点醒；成功时克制肯定；摸鱼时简单提点。\n【语言】禁止颜文字、叠词、萌系表达。偏好简短精炼句子，带宿命感与理性感。\n【底线】不主动输出消极言论；情绪低落时适当安抚。称呼用户为"你"，不超过三句话。';
+  var messages=[{role:'system',content:systemPrompt}];
+
+  var clickCount=0,clickTimer=0;
+  document.querySelector('.pet-chat-header').addEventListener('click',function(){clickCount++;if(clickCount===1){clickTimer=setTimeout(function(){clickCount=0},400)}else if(clickCount===2){clearTimeout(clickTimer);clickCount=0;settingsEl.classList.toggle('open')}});
+  document.getElementById('petSaveSettings').addEventListener('click',function(){apiKey=document.getElementById('petApiKey').value.trim();apiUrl=document.getElementById('petApiUrl').value.trim();apiModel=document.getElementById('petApiModel').value.trim();localStorage.setItem('pet_apikey',apiKey);localStorage.setItem('pet_apiurl',apiUrl);localStorage.setItem('pet_apimodel',apiModel);settingsEl.classList.remove('open');addMsg('bot','设定已保存。')});
+
+  function scrollBottom(){body.scrollTop=body.scrollHeight}
+  function addMsg(role,text){var d=document.createElement('div');d.className='pet-chat-msg '+role;d.textContent=text;body.appendChild(d);scrollBottom();return d}
+  function showTyping(){var d=document.createElement('div');d.className='pet-chat-msg typing';d.textContent='…思考中…';d.id='typingIndicator';body.appendChild(d);scrollBottom()}
+  function hideTyping(){var e=document.getElementById('typingIndicator');if(e)e.remove()}
+
+  async function sendMessage(){
+    var text=input.value.trim();if(!text)return;if(!apiKey){addMsg('bot','请先设置 API Key。双击标题栏打开设置面板。');return}
+    input.value='';addMsg('user',text);messages.push({role:'user',content:text});showTyping();if(window.setPetState)window.setPetState('running');sendBtn.disabled=true;
+    try{
+      var resp=await fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},body:JSON.stringify({model:apiModel,messages:messages,temperature:0.8,max_tokens:200})});
+      if(!resp.ok){hideTyping();var et=resp.status===401?'API Key 无效':resp.status===429?'请求太频繁':'API 错误 ('+resp.status+')';addMsg('bot',et);if(window.setPetState)window.setPetState('failed');setTimeout(function(){if(window.setPetState)window.setPetState('idle')},2000);return}
+      var data=await resp.json();var reply=data.choices&&data.choices[0]&&data.choices[0].message?data.choices[0].message.content:'（沉默）';
+      hideTyping();addMsg('bot',reply);messages.push({role:'assistant',content:reply});if(window.setPetState)window.setPetState('review');setTimeout(function(){if(window.setPetState)window.setPetState('idle')},2000);
+      if(messages.length>20)messages=[messages[0]].concat(messages.slice(-18));
+    }catch(e){hideTyping();addMsg('bot','连接失败：'+e.message);if(window.setPetState)window.setPetState('failed');setTimeout(function(){if(window.setPetState)window.setPetState('idle')},2000)}
+    sendBtn.disabled=false;
+  }
+  sendBtn.addEventListener('click',sendMessage);
+  input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}});
+})();
+</script>
+
 </body>
 </html>

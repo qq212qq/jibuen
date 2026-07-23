@@ -725,6 +725,12 @@ document.getElementById('searchInput').addEventListener('input', debounce(functi
     }
   }
 
+  function saveOrder() {
+    var langs = [];
+    container.querySelectorAll('.filter-btn').forEach(function(b){ langs.push(b.dataset.lang); });
+    localStorage.setItem('jb_filter_order', JSON.stringify(langs));
+  }
+
   function endDrag(btn) {
     clearTimeout(pressTimer);
     pressTimer = null;
@@ -733,6 +739,7 @@ document.getElementById('searchInput').addEventListener('input', debounce(functi
       container.insertBefore(btn, ghost);
       container.removeChild(ghost);
       ghost = null;
+      saveOrder();
     }
 
     if (btn) {
@@ -857,8 +864,27 @@ function escapeAttr(str) {
   return str.replace(/\\/g, '\\\\').replace(/`/g, '\\`').replace(/\$/g, '\\$');
 }
 
+// ==================== 恢复按钮排序 ====================
+function restoreOrder() {
+  var saved = localStorage.getItem('jb_filter_order');
+  if (!saved) return;
+  try {
+    var order = JSON.parse(saved);
+    var container = document.querySelector('.nav-actions');
+    var allBtn = container.querySelector('.filter-btn[data-lang="all"]');
+    // 按保存的顺序重新排列（"全部"始终第一位）
+    for (var i = order.length - 1; i >= 0; i--) {
+      var btn = container.querySelector('.filter-btn[data-lang="'+order[i]+'"]');
+      if (btn && btn.dataset.lang !== 'all' && allBtn) {
+        container.insertBefore(btn, allBtn.nextSibling);
+      }
+    }
+  } catch(e) {}
+}
+
 // ==================== 启动 ====================
 initTheme();
+restoreOrder();
 renderAll();
 </script>
 

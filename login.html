@@ -4,144 +4,219 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>登录 — jibuen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-
 body{
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
-  min-height:100vh;display:flex;align-items:center;justify-content:center;
-  -webkit-font-smoothing:antialiased;
-  /* 晨雾山脉背景 */
-  background:url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80') center/cover no-repeat fixed
+  font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+  font-weight:500;font-size:18px;line-height:1.2;
+  background:#0A0A0B;color:#fff;
+  -webkit-font-smoothing:antialiased
 }
 
-/* 虚化覆盖层 — 增加层次感 */
-body::before{
-  content:'';position:fixed;inset:0;
-  background:rgba(0,0,0,.25);
-  backdrop-filter:blur(2px);
-  -webkit-backdrop-filter:blur(2px);
-  z-index:0
+/* 导航 */
+.nav-login{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 25px
+}
+@media(max-width:768px){.nav-login{padding:16px 15px}}
+.nav-login-logo{
+  display:flex;align-items:center;gap:10px;text-decoration:none;color:#fff
+}
+.nav-login-logo svg{flex-shrink:0}
+.nav-login-logo span{font-size:20px;font-weight:600;letter-spacing:-0.02em}
+.nav-login-links{display:flex;align-items:center;gap:8px}
+.nav-login-links a{
+  color:#999;text-decoration:none;font-size:13px;font-weight:500;
+  text-transform:uppercase;letter-spacing:0.02em;
+  padding:8px 14px;border-radius:6px;transition:color .2s
+}
+.nav-login-links a:hover{color:#fff}
+.nav-login-join{
+  display:flex;align-items:center;gap:8px;
+  background:#C9FE6E;color:#0A0A0B;text-decoration:none;
+  font-size:14px;font-weight:600;padding:10px 20px;border-radius:25px;
+  transition:all .2s;letter-spacing:-0.01em
+}
+.nav-login-join:hover{opacity:.85}
+.nav-login-join img{width:14px;height:14px}
+
+/* 主内容：居中登录 */
+.log-root{
+  min-height:100dvh;padding-top:75px;
+  display:flex;justify-content:center;align-items:center;
+  padding-left:25px;padding-right:25px;padding-bottom:25px
+}
+@media(max-width:768px){.log-root{padding-left:15px;padding-right:15px}}
+
+.log-content{
+  width:400px;max-width:100%;
+  display:flex;flex-direction:column;gap:25px;
+  text-align:center
 }
 
-/* ===== 毛玻璃卡片 ===== */
-.login-card{
-  position:relative;z-index:1;
-  width:90%;max-width:400px;
-  background:rgba(255,255,255,.12);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  border:1px solid rgba(255,255,255,.25);
-  border-radius:16px;padding:44px 36px 36px;
-  box-shadow:0 8px 32px rgba(0,0,0,.15)
+/* 小标签 + 二极管黄点 */
+.log-label{
+  font-size:11px;font-weight:500;text-transform:uppercase;
+  letter-spacing:0.04em;color:#999;
+  display:flex;align-items:center;gap:0;
+  margin:0 auto;position:relative;padding-left:16px
+}
+.log-label::before{
+  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:5px;height:5px;border-radius:50%;
+  background:#C9FE6E
 }
 
-.login-card h1{
-  text-align:center;color:#fff;font-size:26px;font-weight:500;
-  letter-spacing:1px;margin-bottom:4px
+/* 标题 */
+.log-title{
+  font-size:30px;font-weight:500;line-height:1.02;
+  letter-spacing:-0.02em
 }
 
-.login-card .sub{
-  text-align:center;color:rgba(255,255,255,.6);font-size:13px;
-  margin-bottom:36px;letter-spacing:.5px
+/* 表单 */
+.log-form{
+  display:flex;flex-direction:column;gap:15px
+}
+.log-form input{
+  width:100%;height:50px;
+  font:inherit;font-size:16px;
+  border-radius:25px;border:none;
+  background:#232323!important;color:#fff!important;
+  padding:0 25px;outline:none;
+  transition:background .2s;
+  -webkit-appearance:none;appearance:none
+}
+.log-form input::placeholder{color:#777}
+.log-form input:focus{background:#2a2a2a!important}
+/* 干掉浏览器自动填充的白底黄底 */
+.log-form input:-webkit-autofill,
+.log-form input:-webkit-autofill:hover,
+.log-form input:-webkit-autofill:focus{
+  -webkit-box-shadow:0 0 0 30px #232323 inset!important;
+  -webkit-text-fill-color:#fff!important;
+  caret-color:#fff;
+  transition:background-color 5000s ease-in-out 0s
 }
 
-/* ===== 输入框 ===== */
-.field{margin-bottom:18px}
+/* 密码框 + 显示切换 */
+.log-pass-wrap{position:relative}
+.log-pass-wrap input{padding-right:55px!important}
+.toggle-pass{
+  position:absolute;right:0;top:0;height:100%;
+  aspect-ratio:1;display:grid;place-items:center;
+  background:none;border:none;cursor:pointer
+}
+.toggle-pass img{width:18px;height:auto}
+.toggle-pass .eye-on{display:none}
+.toggle-pass.show .eye-off{display:none}
+.toggle-pass.show .eye-on{display:block}
 
-.field input{
-  width:100%;padding:13px 16px;
-  background:rgba(255,255,255,.10);
-  border:1px solid rgba(255,255,255,.20);
-  border-radius:8px;font-size:14px;color:#fff;outline:none;
-  font-family:inherit;transition:all .2s
+/* 登录按钮 */
+.log-btn{
+  width:100%;height:50px;
+  background:#fff;color:#0A0A0B;border:none;
+  border-radius:25px;font:inherit;font-size:16px;font-weight:600;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:all .2s;letter-spacing:-0.01em
+}
+.log-btn:hover{opacity:.85}
+.log-btn img{width:14px;height:14px}
+
+/* 忘记密码 */
+.log-forgot{
+  color:#777;text-decoration:none;font-size:13px;
+  transition:color .2s;display:block;text-align:center
+}
+.log-forgot:hover{color:#fff}
+
+/* 底部 */
+.log-bottom{
+  position:absolute;bottom:25px;left:50%;transform:translateX(-50%);
+  font-size:13px;color:#777;white-space:nowrap
+}
+.log-bottom a{color:#fff;text-decoration:none;font-weight:600;transition:opacity .2s}
+.log-bottom a:hover{opacity:.7}
+
+/* 错误提示 */
+.log-error{
+  font-size:12px;color:#f4a3a3;min-height:18px;text-align:center
 }
 
-.field input::placeholder{color:rgba(255,255,255,.4)}
-
-.field input:focus{
-  border-color:rgba(255,255,255,.45);
-  background:rgba(255,255,255,.15)
-}
-
-/* ===== 错误提示 ===== */
-.error{
-  text-align:center;font-size:12px;
-  min-height:18px;margin-bottom:4px
-}
-
-/* ===== 登录按钮 — 点缀色 ===== */
-.btn{
-  width:100%;padding:13px;margin-top:4px;
-  background:#5b8c85;color:#fff;border:none;
-  border-radius:8px;font-size:14px;font-weight:500;
-  cursor:pointer;font-family:inherit;letter-spacing:1px;
-  transition:all .25s
-}
-
-.btn:hover{background:#4a7a73;box-shadow:0 4px 16px rgba(91,140,133,.3)}
-
-/* ===== 底部文字 ===== */
-.footer-text{
-  text-align:center;margin-top:28px;
-  font-size:12px;color:rgba(255,255,255,.45)
-}
-
-.footer-text a{
-  color:rgba(255,255,255,.75);text-decoration:none;font-weight:400;
-  transition:color .2s
-}
-
-.footer-text a:hover{color:#fff}
-
-/* ===== 响应式 ===== */
-@media(max-width:480px){
-  .login-card{padding:36px 28px}
-  .login-card h1{font-size:22px}
+@media(max-width:768px){
+  .log-title{font-size:26px}
+  .log-content{gap:20px}
 }
 </style>
 </head>
 <body>
 
-<div class="login-card">
-  <h1>登录</h1>
-  <p class="sub">欢迎回到 jibuen</p>
+<!-- 导航栏 -->
+<nav class="nav-login">
+  <a href="index.html" class="nav-login-logo">
+    <svg width="26" height="26" viewBox="0 0 256 256" fill="#ffffff"><path d="M 256 256 L 128 256 L 0 128 L 128 128 Z M 256 128 L 128 128 L 0 0 L 128 0 Z"/></svg>
+    <span>jibuen</span>
+  </a>
+  <div class="nav-login-links">
+    <a href="index.html">首页</a>
+    <a href="notes.html">笔记</a>
+    <a href="index.html#about">关于</a>
+    <a href="index.html" class="nav-login-join">了解更多 <span style="font-size:12px">→</span></a>
+  </div>
+</nav>
 
-  <form onsubmit="return handleLogin(event)">
-    <div class="field">
-      <input type="text" id="username" placeholder="用户名或邮箱" autocomplete="username" required>
-    </div>
-    <div class="field">
-      <input type="password" id="password" placeholder="密码" autocomplete="current-password" required>
-    </div>
-    <div class="error" id="errorMsg"></div>
-    <button type="submit" class="btn">登 录</button>
-  </form>
+<!-- 登录区域 -->
+<div class="log-root">
+  <div class="log-content">
+    <p class="log-label">进入代码世界</p>
+    <h1 class="log-title">登录以继续</h1>
 
-  <p class="footer-text">
-    还没有账号？<a href="#">立即注册</a>
-    &nbsp;·&nbsp;
-    <a href="index.html">返回首页</a>
-    &nbsp;·&nbsp;
-    <a href="notes.html">📝 代码笔记</a>
-  </p>
+    <form class="log-form" onsubmit="return handleLogin(event)">
+      <input type="email" id="email" placeholder="电子邮箱" autocomplete="email" required>
+      <div class="log-pass-wrap">
+        <input type="password" id="password" placeholder="密码" autocomplete="current-password" required>
+        <button type="button" class="toggle-pass" id="togglePass" aria-label="显示密码" onclick="togglePassword()">
+          <svg class="eye-off" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="1.5"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+          <svg class="eye-on" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C9FE6E" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <div class="log-error" id="loginMsg"></div>
+      <button type="submit" class="log-btn">登录 <span style="font-size:12px">→</span></button>
+    </form>
+
+    <a href="#" class="log-forgot">忘记密码？</a>
+  </div>
 </div>
 
+<div class="log-bottom">还没有账号？<a href="register.html">立即注册</a></div>
+
 <script>
+function togglePassword(){
+  var pwd = document.getElementById('password');
+  var btn = document.getElementById('togglePass');
+  if(pwd.type === 'password'){
+    pwd.type = 'text';
+    btn.classList.add('show');
+    btn.setAttribute('aria-label','隐藏密码');
+  } else {
+    pwd.type = 'password';
+    btn.classList.remove('show');
+    btn.setAttribute('aria-label','显示密码');
+  }
+}
+
 function handleLogin(e){
   e.preventDefault();
-  var u=document.getElementById('username').value.trim();
-  var p=document.getElementById('password').value.trim();
-  var m=document.getElementById('errorMsg');
-  if(!u||!p){m.textContent='请填写所有字段';return false;}
-  if(u==='admin'&&p==='123456'){
-    m.style.color='#a3d5cf';
-    m.textContent='登录成功，正在跳转...';
-    setTimeout(function(){window.location.href='index.html';},1000);
-  }else{
-    m.style.color='#f4a3a3';
-    m.textContent='用户名或密码错误';
-  }
+  var u = document.getElementById('email').value.trim();
+  var p = document.getElementById('password').value.trim();
+  var m = document.getElementById('loginMsg');
+  if(!u || !p){ m.textContent = '请填写所有字段'; return false; }
+  m.style.color = '#C9FE6E';
+  m.textContent = '登录成功，正在跳转…';
+  setTimeout(function(){ window.location.href = 'index.html'; }, 800);
   return false;
 }
 </script>
