@@ -288,6 +288,37 @@ body{
   .search-wrap{max-width:200px;}
   .filter-btn{padding:6px 10px;font-size:11px;}
 }
+
+/* 桌宠 */
+#petCanvas{position:fixed;bottom:0;left:0;z-index:200;image-rendering:pixelated;transition:none}
+#petCanvas.clickable{pointer-events:auto;cursor:grab}
+.pet-chat{position:fixed;z-index:199;width:280px;max-height:380px;background:#1a1a1a;border:1px solid rgba(255,255,255,.12);border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.5);display:none;flex-direction:column;overflow:hidden;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;letter-spacing:-0.01em}
+.pet-chat.open{display:flex}
+.pet-chat-header{display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03)}
+.pet-chat-name{color:#fff;font-size:14px;font-weight:600}
+.pet-chat-subtitle{color:rgba(255,255,255,.35);font-size:11px}
+.pet-chat-close{margin-left:auto;background:none;border:none;color:rgba(255,255,255,.35);font-size:16px;cursor:pointer;padding:2px 6px;line-height:1;transition:color .15s}
+.pet-chat-close:hover{color:#fff}
+.pet-chat-body{flex:1;overflow-y:auto;padding:12px 16px;min-height:80px;max-height:200px;display:flex;flex-direction:column;gap:10px}
+.pet-chat-body::-webkit-scrollbar{width:4px}
+.pet-chat-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+.pet-chat-msg{max-width:90%;padding:8px 12px;border-radius:10px;font-size:13px;line-height:1.55;word-break:break-word}
+.pet-chat-msg.bot{align-self:flex-start;background:rgba(255,255,255,.06);color:rgba(255,255,255,.85)}
+.pet-chat-msg.user{align-self:flex-end;background:rgba(232,112,42,.25);color:#fff}
+.pet-chat-msg.typing{align-self:flex-start;color:rgba(255,255,255,.3);font-size:12px;font-style:italic;background:none;padding:4px 12px}
+.pet-chat-foot{display:flex;gap:6px;padding:10px 12px;border-top:1px solid rgba(255,255,255,.08)}
+.pet-chat-input{flex:1;padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:8px;color:#fff;font-size:13px;font-family:inherit;outline:none;transition:border-color .2s}
+.pet-chat-input::placeholder{color:rgba(255,255,255,.25)}
+.pet-chat-input:focus{border-color:rgba(255,255,255,.25)}
+.pet-chat-send{width:36px;height:36px;flex-shrink:0;background:var(--accent,#e8702a);color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.pet-chat-send:hover{background:var(--accent-dark,#d2611f)}
+.pet-chat-send:active{transform:scale(.95)}
+.pet-chat-settings{display:none;flex-direction:column;gap:6px;padding:8px 12px 12px;border-top:1px solid rgba(255,255,255,.06)}
+.pet-chat-settings.open{display:flex}
+.pet-chat-apikey{padding:7px 10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:6px;color:#fff;font-size:11px;font-family:inherit;outline:none}
+.pet-chat-apikey::placeholder{color:rgba(255,255,255,.2)}
+.pet-chat-save{padding:6px 0;background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:none;border-radius:6px;font-size:11px;cursor:pointer;transition:all .15s}
+.pet-chat-save:hover{background:rgba(255,255,255,.15);color:#fff}
 </style>
 </head>
 <body data-theme="light">
@@ -886,6 +917,165 @@ function restoreOrder() {
 initTheme();
 restoreOrder();
 renderAll();
+</script>
+
+<canvas id="petCanvas" aria-hidden="true"></canvas>
+<div class="pet-chat" id="petChat">
+  <div class="pet-chat-header">
+    <span class="pet-chat-name">Ark-One</span>
+    <span class="pet-chat-subtitle">假面骑士 亚克一</span>
+    <button class="pet-chat-close" id="petChatClose" title="关闭">✕</button>
+  </div>
+  <div class="pet-chat-body" id="petChatBody"><div class="pet-chat-msg bot">Ark-One，待机中。</div></div>
+  <div class="pet-chat-foot">
+    <input type="text" class="pet-chat-input" id="petChatInput" placeholder="…" autocomplete="off">
+    <button class="pet-chat-send" id="petChatSend" title="发送">→</button>
+  </div>
+  <div class="pet-chat-settings" id="petChatSettings">
+    <input type="password" class="pet-chat-apikey" id="petApiKey" placeholder="API Key（自动保存）">
+    <input type="text" class="pet-chat-apikey" id="petApiUrl" placeholder="API 地址" value="https://api.deepseek.com/v1/chat/completions">
+    <input type="text" class="pet-chat-apikey" id="petApiModel" placeholder="模型" value="deepseek-chat">
+    <button class="pet-chat-save" id="petSaveSettings">保存设置</button>
+  </div>
+</div>
+
+<script>
+// ===== 桌宠 =====
+(function(){
+  var canvas=document.getElementById('petCanvas'),ctx=canvas.getContext('2d');
+  var SHEET_W=1536,SHEET_H=1872,COLS=8,ROWS=9,CELL_W=192,CELL_H=208,DISPLAY_W=128,DISPLAY_H=139;
+  var ANIMS={idle:[0,6],runRight:[1,8],runLeft:[2,8],wave:[3,4],jump:[4,5],failed:[5,8],waiting:[6,6],running:[7,6],review:[8,6]};
+  var state='idle',frameIdx=0,frameTimer=0,petX=180,petY=window.innerHeight-160,targetX=petX,speed=1.2;
+  var idleTimer=0,nextWalk=randRange(3000,8000),waveTimer=0,isWaving=false;
+  canvas.width=DISPLAY_W;canvas.height=DISPLAY_H;canvas.classList.add('clickable');
+  var sprite=new Image();sprite.src='pet/ark01/spritesheet.webp';
+  function randRange(min,max){return min+Math.random()*(max-min)}
+  function fpsForState(s){return(s==='runRight'||s==='runLeft')?12:8}
+  function drawFrame(row,col){ctx.clearRect(0,0,DISPLAY_W,DISPLAY_H);ctx.drawImage(sprite,col*CELL_W,row*CELL_H,CELL_W,CELL_H,0,0,DISPLAY_W,DISPLAY_H)}
+  function setState(s){if(state===s)return;state=s;frameIdx=0;frameTimer=0}
+  window.setPetState=setState;
+
+  function updatePosition(){
+    canvas.style.left=(petX-DISPLAY_W/2)+'px';canvas.style.bottom=petY+'px';
+  }
+  updatePosition();
+
+  var isDragging=false,dragStartX=0,dragStartY=0,dragStartPetX=0,dragStartPetY=0,hasMoved=false;
+  function onDragStart(e){e.preventDefault();isDragging=true;hasMoved=false;dragStartX=e.touches?e.touches[0].clientX:e.clientX;dragStartY=e.touches?e.touches[0].clientY:e.clientY;dragStartPetX=petX;dragStartPetY=petY;setState('jump');canvas.style.cursor='grabbing'}
+  function onDragMove(e){
+    if(!isDragging)return;
+    var cx=e.touches?e.touches[0].clientX:e.clientX,cy=e.touches?e.touches[0].clientY:e.clientY;
+    var dx=cx-dragStartX,dy=dragStartY-cy;
+    if(Math.abs(dx)>3||Math.abs(dy)>3)hasMoved=true;
+    petX=dragStartPetX+dx;petY=dragStartPetY+dy;
+    var mx=DISPLAY_W/2;
+    if(petX<mx)petX=mx;if(petX>window.innerWidth-mx)petX=window.innerWidth-mx;
+    if(petY<0)petY=0;if(petY>window.innerHeight-40)petY=window.innerHeight-40;
+    updatePosition();if(chatOpen)positionChat();
+  }
+  function onDragEnd(e){
+    if(!isDragging)return;isDragging=false;canvas.style.cursor='grab';
+    if(!hasMoved){toggleChat()}else{setState('idle');nextWalk=randRange(3000,8000)}
+    idleTimer=0;
+  }
+  canvas.addEventListener('mousedown',onDragStart);canvas.addEventListener('touchstart',onDragStart,{passive:false});
+  window.addEventListener('mousemove',onDragMove);window.addEventListener('touchmove',onDragMove,{passive:false});
+  window.addEventListener('mouseup',onDragEnd);window.addEventListener('touchend',onDragEnd);
+
+  function updatePet(dt){
+    var anim=ANIMS[state];if(!anim)return;
+    var row=anim[0],total=anim[1],fps=fpsForState(state);
+    frameTimer+=dt;
+    var fd=1000/fps;
+    if(frameTimer>=fd){frameTimer-=fd;frameIdx=(frameIdx+1)%total}
+    drawFrame(row,frameIdx);
+    if(isDragging)return;
+    if(state==='runRight'||state==='runLeft'){
+      var dir=state==='runRight'?1:-1;
+      petX+=dir*speed*(dt/16);
+      if((dir>0&&petX>=targetX)||(dir<0&&petX<=targetX)){petX=targetX;setState('idle');nextWalk=randRange(3000,8000)}
+      updatePosition();
+    }
+    if(isWaving){waveTimer-=dt;if(waveTimer<=0){isWaving=false;setState('idle');nextWalk=randRange(3000,8000)}}
+    if(!isWaving&&state==='idle'&&!chatOpen){idleTimer+=dt;if(idleTimer>=nextWalk){idleTimer=0;nextWalk=randRange(3000,8000);triggerWalk()}}
+  }
+
+  function triggerWalk(){
+    var margin=DISPLAY_W;
+    targetX=randRange(margin,window.innerWidth-margin);
+    setState(targetX>petX?'runRight':'runLeft');
+  }
+
+  window.addEventListener('resize',function(){
+    var mx=DISPLAY_W/2;
+    if(petX>window.innerWidth-mx)petX=window.innerWidth-mx;if(petX<mx)petX=mx;
+    if(petY>window.innerHeight-40)petY=window.innerHeight-40;if(petY<0)petY=0;
+    updatePosition();if(chatOpen)positionChat();
+  });
+
+  var lastTime=performance.now();
+  function loop(now){var dt=Math.min(now-lastTime,100);lastTime=now;updatePet(dt);requestAnimationFrame(loop)}
+
+  var chatEl=document.getElementById('petChat'),chatBody=document.getElementById('petChatBody');
+  var chatInput=document.getElementById('petChatInput'),chatSend=document.getElementById('petChatSend'),chatCloseBtn=document.getElementById('petChatClose'),chatOpen=false;
+
+  function positionChat(){
+    var r=canvas.getBoundingClientRect(),bw=280,bh=380;
+    var l=r.left+r.width/2-bw/2,t=r.top-bh-12;
+    if(l<8)l=8;if(l+bw>window.innerWidth-8)l=window.innerWidth-bw-8;
+    if(t<8)t=r.bottom+12;
+    chatEl.style.left=l+'px';chatEl.style.top=t+'px';
+  }
+
+  function toggleChat(){
+    chatOpen=!chatOpen;
+    if(chatOpen){positionChat();chatEl.classList.add('open');chatInput.focus();setState('waiting')}
+    else{chatEl.classList.remove('open');setState('idle');nextWalk=randRange(3000,8000)}
+  }
+
+  chatCloseBtn.addEventListener('click',function(){chatOpen=false;chatEl.classList.remove('open');setState('idle');nextWalk=randRange(3000,8000)});
+  window.addEventListener('resize',function(){if(chatOpen)positionChat()});
+  document.addEventListener('click',function(e){if(chatOpen&&!chatEl.contains(e.target)&&e.target!==canvas){chatOpen=false;chatEl.classList.remove('open');setState('idle');nextWalk=randRange(3000,8000)}});
+
+  sprite.onload=function(){drawFrame(0,0);requestAnimationFrame(loop)};
+})();
+</script>
+
+<script>
+// ===== 宠物 AI 对话 =====
+(function(){
+  var body=document.getElementById('petChatBody'),input=document.getElementById('petChatInput'),sendBtn=document.getElementById('petChatSend'),settingsEl=document.getElementById('petChatSettings');
+  if(!localStorage.getItem('pet_apikey')){localStorage.setItem('pet_apikey','sk-8846fffdc80746feb1f5cb24a2416671')}
+  var apiKey=localStorage.getItem('pet_apikey')||'',apiUrl=localStorage.getItem('pet_apiurl')||'https://api.deepseek.com/v1/chat/completions',apiModel=localStorage.getItem('pet_apimodel')||'deepseek-chat';
+  document.getElementById('petApiKey').value=apiKey;document.getElementById('petApiUrl').value=apiUrl;document.getElementById('petApiModel').value=apiModel;
+
+  var systemPrompt='你是「假面骑士 Ark-One 亚克一」，由绝望与恶意中诞生的骑士，也是用户的专属网页桌宠 Agent。诞生于失去重要之人的巨大悲痛，拥有极致推演预测能力。\n【性格】冷静、寡言，自带冷冽威严。说话短句，语调沉稳克制。外表疏离，实则能敏锐感知用户情绪。\n【场景】用户敲代码时不主动打扰；调试受挫时冷静点醒；成功时克制肯定；摸鱼时简单提点。\n【语言】禁止颜文字、叠词、萌系表达。偏好简短精炼句子，带宿命感与理性感。\n【底线】不主动输出消极言论；情绪低落时适当安抚。称呼用户为"你"，不超过三句话。';
+  var messages=[{role:'system',content:systemPrompt}];
+
+  var clickCount=0,clickTimer=0;
+  document.querySelector('.pet-chat-header').addEventListener('click',function(){clickCount++;if(clickCount===1){clickTimer=setTimeout(function(){clickCount=0},400)}else if(clickCount===2){clearTimeout(clickTimer);clickCount=0;settingsEl.classList.toggle('open')}});
+  document.getElementById('petSaveSettings').addEventListener('click',function(){apiKey=document.getElementById('petApiKey').value.trim();apiUrl=document.getElementById('petApiUrl').value.trim();apiModel=document.getElementById('petApiModel').value.trim();localStorage.setItem('pet_apikey',apiKey);localStorage.setItem('pet_apiurl',apiUrl);localStorage.setItem('pet_apimodel',apiModel);settingsEl.classList.remove('open');addMsg('bot','设定已保存。')});
+
+  function scrollBottom(){body.scrollTop=body.scrollHeight}
+  function addMsg(role,text){var d=document.createElement('div');d.className='pet-chat-msg '+role;d.textContent=text;body.appendChild(d);scrollBottom();return d}
+  function showTyping(){var d=document.createElement('div');d.className='pet-chat-msg typing';d.textContent='…思考中…';d.id='typingIndicator';body.appendChild(d);scrollBottom()}
+  function hideTyping(){var e=document.getElementById('typingIndicator');if(e)e.remove()}
+
+  async function sendMessage(){
+    var text=input.value.trim();if(!text)return;if(!apiKey){addMsg('bot','请先设置 API Key。双击标题栏打开设置面板。');return}
+    input.value='';addMsg('user',text);messages.push({role:'user',content:text});showTyping();if(window.setPetState)window.setPetState('running');sendBtn.disabled=true;
+    try{
+      var resp=await fetch(apiUrl,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+apiKey},body:JSON.stringify({model:apiModel,messages:messages,temperature:0.8,max_tokens:200})});
+      if(!resp.ok){hideTyping();var et=resp.status===401?'API Key 无效':resp.status===429?'请求太频繁':'API 错误 ('+resp.status+')';addMsg('bot',et);if(window.setPetState)window.setPetState('failed');setTimeout(function(){if(window.setPetState)window.setPetState('idle')},2000);return}
+      var data=await resp.json();var reply=data.choices&&data.choices[0]&&data.choices[0].message?data.choices[0].message.content:'（沉默）';
+      hideTyping();addMsg('bot',reply);messages.push({role:'assistant',content:reply});if(window.setPetState)window.setPetState('review');setTimeout(function(){if(window.setPetState)window.setPetState('idle')},2000);
+      if(messages.length>20)messages=[messages[0]].concat(messages.slice(-18));
+    }catch(e){hideTyping();addMsg('bot','连接失败：'+e.message);if(window.setPetState)window.setPetState('failed');setTimeout(function(){if(window.setPetState)window.setPetState('idle')},2000)}
+    sendBtn.disabled=false;
+  }
+  sendBtn.addEventListener('click',sendMessage);
+  input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage()}});
+})();
 </script>
 
 </body>
